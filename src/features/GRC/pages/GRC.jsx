@@ -4,7 +4,7 @@ import { NavLink, Outlet , Link } from 'react-router-dom'
 
 
 import "./GRC.css"
-import profile from "../../../assets/prrofile.png"
+import HeaderUserMenu from "../../auth/components/HeaderUserMenu";
 
 import {
     CircleCheck,
@@ -68,18 +68,7 @@ export default function GRC() {
 
                     <i className="fa-regular fa-bell notification-icon fs-5"></i>
 
-                    <figure className='profile-figure mb-0'>
-
-                        <img src={profile} alt="profile" />
-
-                    </figure>
-
-                    <div className='user-info d-none d-md-block'>
-
-                        <p className='text-white mb-0'>0xMOSTA</p>
-                        <p className='header-role mb-0'>Lead Auditor</p>
-
-                    </div>
+                    <HeaderUserMenu />
 
                 </div>
 

@@ -1,24 +1,60 @@
-import React from 'react'
-import waveIcon from "../../../../assets/Vector (1).png"
+import React, { useEffect, useRef } from "react";
+import waveIcon from "../../../../assets/Vector (1).png";
+import "../Shared/NetworkShared.css";
 
-export default function LivePacketStream() {
-  return<>
-    <div className='d-flex align-items-center mb-3'>
-        <figure className='mb-0 me-2'>
-            <img src={waveIcon} className='w-100' alt="codeIcon" />
-        </figure>
-        <h6 className='text-white mb-0'>Capture Controls</h6>
-    </div>
-  <div className='bg-black h-100'>
-    <div className='p-3'>
-            <p className='text-white'>0001 06:37:27.845 TCP 192.168.1.10:54321 → 10.0.0.5:443 Len:1460 Flags [.], seq 1:1461, ack 1, win 65535</p>
-            <p className='text-white'>0002 06:37:28.245 DNS 192.168.1.50:53 → 8.8.8.8:53 Len:64 Standard query A example.com</p>
-            <p className='text-white'>0002 06:37:28.245 DNS 192.168.1.50:53 → 8.8.8.8:53 Len:64 Standard query A example.com</p>
-    </div>
-  </div>
-  
-  
-  
-  
-  </>
+function protocolClass(protocol) {
+  const p = (protocol ?? "").toLowerCase();
+  if (p === "tcp") return "packet-protocol-tcp";
+  if (p === "dns") return "packet-protocol-dns";
+  if (p === "tls" || p === "ssl") return "packet-protocol-tls";
+  return "";
+}
+
+export default function LivePacketStream({ packets = [], active = false }) {
+  const terminalRef = useRef(null);
+
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [packets]);
+
+  return (
+    <>
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div className="d-flex align-items-center">
+          <figure className="mb-0 me-2">
+            <img src={waveIcon} className="w-100" alt="stream" />
+          </figure>
+          <h6 className="text-white mb-0">Live Packet Stream</h6>
+        </div>
+        {active && (
+          <span className="badge rounded-pill" style={{ background: "#10B981" }}>
+            <i className="fa-solid fa-circle me-1" style={{ fontSize: "8px" }} />
+            LIVE
+          </span>
+        )}
+      </div>
+      <div className="packet-terminal h-100" ref={terminalRef}>
+        {!packets.length && (
+          <div className="packet-line text-secondary">
+            {active ? "Waiting for packets..." : "Start capture to view live packet stream."}
+          </div>
+        )}
+        {packets.map((pkt) => (
+          <div
+            key={`${pkt.id}-${pkt.timestamp}`}
+            className={`packet-line ${pkt.summary?.toLowerCase().includes("suspicious") ? "packet-line-suspicious" : ""}`}
+          >
+            <span className="text-secondary me-2">{String(pkt.id).padStart(4, "0")}</span>
+            <span className="text-secondary me-2">{pkt.timestamp}</span>
+            <span className={`me-2 ${protocolClass(pkt.protocol)}`}>{pkt.protocol}</span>
+            <span className="me-2">{pkt.src} → {pkt.dst}</span>
+            <span className="text-secondary me-2">Len:{pkt.length}</span>
+            <span>{pkt.summary}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }

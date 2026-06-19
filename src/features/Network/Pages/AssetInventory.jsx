@@ -1,67 +1,127 @@
-import React from 'react'
-import "./AssetInventory.css"
-import { useOutletContext } from 'react-router-dom';
-import assetsInventoryIcon from"../../../assets/SVG (3).png"
-
-import AssetsTabel from '../Components/AssetsTabel/AssetsTabel';
+import React, { useEffect } from "react";
+import "./AssetInventory.css";
+import { useOutletContext } from "react-router-dom";
+import assetsInventoryIcon from "../../../assets/SVG (3).png";
+import AssetsTabel from "../Components/AssetsTabel/AssetsTabel";
+import NetworkAlert from "../Components/Shared/NetworkAlert";
+import NetworkLoading from "../Components/Shared/NetworkLoading";
+import AssetDetailModal from "../Components/Shared/AssetDetailModal";
+import AssetContextModal from "../Components/Shared/AssetContextModal";
+import useAssetInventory from "../hooks/useAssetInventory";
 
 export default function AssetInventory() {
+  const { setTitle } = useOutletContext();
+  const {
+    assets,
+    loading,
+    error,
+    search,
+    setSearch,
+    categoryFilter,
+    setCategoryFilter,
+    reload,
+    selectedAsset,
+    assetDetails,
+    detailsLoading,
+    openDetails,
+    closeDetails,
+    contextIp,
+    contextData,
+    contextLoading,
+    contextError,
+    openContext,
+    closeContext,
+  } = useAssetInventory();
 
-  const { title, setTitle } = useOutletContext();
+  useEffect(() => {
+    setTitle("Asset Inventory");
+  }, [setTitle]);
 
-  setTitle("Asset Inventory")
+  const categories = ["all", "network", "servers", "iot", "general"];
 
-  return <>
-  
-  <div className='row align-items-center mb-3'>
+  return (
+    <>
+      <NetworkAlert error={error} onRetry={reload} />
 
-    <div className='col-6 search-container m-0'>
+      <div className="row align-items-center mb-3">
+        <div className="col-6 search-container m-0">
+          <i className="fa-brands mx-2 fa-sistrix discover-search-icon" />
+          <input
+            type="text"
+            className="form-control header-search-input assets rounded-3"
+            placeholder="Search IP, MAC, hostname, OS..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-      <i className="fa-brands mx-2 fa-sistrix discover-search-icon"></i>
-
-      <input
-          type="text"
-          className='form-control header-search-input assets rounded-3'
-          placeholder='Search...'
-      />
-
-    </div>
-
-
-    <div className='col-4'>
-          <select name="" id="scanType" className='form-select Allcategories scanType-select border-0'>
-              <option value="both">All Categories</option>
+        <div className="col-4">
+          <select
+            className="form-select Allcategories scanType-select border-0"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat === "all" ? "All Categories" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </option>
+            ))}
           </select>
-    </div>
-
-    <div className='col-2'>
-      <button className='btn mx-auto start-btn border-0 rounded-3 text-white fw-medium me-3 ps-0 d-flex justify-content-between align-items-center'><i class="fa-solid fa-plus mx-2 text-white"></i>Add Asset</button>
-    </div>
-
-  </div>
-
-
-  <div>
-    <div className='dashboard-card mb-3'>
-      <div className='row justify-content-between align-items-center mb-3'>
-        <div className='col-9 d-flex align-items-center mb-0'>
-              <figure className='mb-0 me-2'>
-                  <img src={assetsInventoryIcon} className='w-100' alt="assetsInventoryIcon" />
-              </figure>
-              <h6 className='text-white mb-0'>Asset Inventory <span>(20)</span></h6>
         </div>
-        <div className='col-2'>
-          <div className='d-flex justify-content-between align-items-center'>
-            <button className='btn action-btns rounded-3'><i class="fa-solid text-secondary fa-arrow-rotate-right"></i></button>
-            <button className='btn action-btns rounded-3'><i class="fa-solid text-secondary fa-download"></i></button>
-            <button className='btn action-btns rounded-3'><i class="fa-solid text-secondary fa-filter"></i></button>
-        </div>
+
+        <div className="col-2">
+          <button
+            type="button"
+            className="btn mx-auto start-btn border-0 rounded-3 text-white fw-medium ps-0 d-flex align-items-center"
+            onClick={reload}
+          >
+            <i className="fa-solid fa-arrow-rotate-right mx-2 text-white" />
+            Refresh
+          </button>
         </div>
       </div>
-      <AssetsTabel />
-    </div>
-  </div>
-  
-  
-  </>
+
+      <div className="dashboard-card mb-3">
+        <div className="row justify-content-between align-items-center mb-3">
+          <div className="col-9 d-flex align-items-center mb-0">
+            <figure className="mb-0 me-2">
+              <img src={assetsInventoryIcon} className="w-100" alt="inventory" />
+            </figure>
+            <h6 className="text-white mb-0">Asset Inventory ({assets.length})</h6>
+          </div>
+        </div>
+        {loading && !assets.length ? (
+          <NetworkLoading skeleton rows={6} />
+        ) : (
+          <AssetsTabel
+            assets={assets}
+            loading={loading}
+            onViewDetails={openDetails}
+            onContextLookup={openContext}
+          />
+        )}
+      </div>
+
+      {selectedAsset && (
+        <AssetDetailModal
+          asset={selectedAsset}
+          details={assetDetails}
+          loading={detailsLoading}
+          onClose={closeDetails}
+          onContextLookup={openContext}
+        />
+      )}
+
+      {contextIp && (
+        <AssetContextModal
+          ip={contextIp}
+          context={contextData}
+          loading={contextLoading}
+          error={contextError}
+          onClose={closeContext}
+          onRetry={() => openContext(contextIp)}
+        />
+      )}
+    </>
+  );
 }

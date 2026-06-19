@@ -1,0 +1,140 @@
+@import url(../../../Network/Components/Shared/NetworkShared.css);
+
+.phishing-soc-page {
+  padding: 16px;
+}
+
+.dashboard-desc {
+  color: #9DA3B0;
+  font-size: 14px;
+}
+
+.phishing-risk-high {
+  color: #EF4444 !important;
+  background-color: #2E212C !important;
+  border: 1px solid #EF4444;
+}
+
+.phishing-risk-medium {
+  color: #F59E0B !important;
+  background-color: #312B2A !important;
+  border: 1px solid #F59E0B;
+}
+
+.phishing-risk-low {
+  color: #10B981 !important;
+  background-color: #10b98120 !important;
+  border: 1px solid #10B981;
+}
+
+.siem-event-stream {
+  background: #0B0E15;
+  border: 1px solid #2A3042;
+  border-radius: 8px;
+  max-height: 480px;
+  overflow-y: auto;
+  font-family: "Courier New", Consolas, monospace;
+  font-size: 12px;
+}
+
+.siem-event-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #1B202D;
+  align-items: flex-start;
+}
+
+.siem-event-row:hover {
+  background: #1B202D;
+}
+
+.siem-event-critical {
+  border-left: 3px solid #EF4444;
+  background: #2E212C33;
+}
+
+.siem-event-warning {
+  border-left: 3px solid #F59E0B;
+}
+
+.siem-event-info {
+  border-left: 3px solid #06B6D4;
+}
+
+.siem-event-time {
+  color: #64748B;
+  min-width: 80px;
+}
+
+.siem-event-type {
+  min-width: 100px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.siem-event-type-open { color: #06B6D4; }
+.siem-event-type-click { color: #F59E0B; }
+.siem-event-type-visit { color: #A5B4FC; }
+.siem-event-type-submit { color: #EF4444; }
+.siem-event-type-download { color: #F97316; }
+
+.launch-console-log {
+  background: #0B0E15;
+  border: 1px solid #2A3042;
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+  color: #9DA3B0;
+}
+
+.launch-console-log .log-line {
+  margin-bottom: 4px;
+}
+
+.wizard-steps {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.wizard-step {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px;
+  background: #10141F;
+  border: 1px solid #2A3042;
+  color: #9DA3B0;
+  font-size: 13px;
+}
+
+.wizard-step.active {
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+  color: white;
+  border-color: transparent;
+}
+
+.wizard-step.done {
+  border-color: #10B981;
+  color: #10B981;
+}
+
+.heatmap-cell {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #2A3042;
+}
+
+.role-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #1a2235;
+  color: #A5B4FC;
+  border: 1px solid #539BFF;
+}

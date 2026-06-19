@@ -1,123 +1,124 @@
-import React from 'react'
-import StatsCard from '../../SOAR/Components/StatsCard/StatsCard'
-import IncidentTable from '../../SOAR/Components/IncidentTable/IncidentTable'
-import PlaybookCard from '../../SOAR/Components/PlaybookCard/PlaybookCard'
-import ThreatFeedCard from '../../SOAR/Components/ThreatFeedCard/ThreatFeedCard'
-import RiskCard from '../../SOAR/Components/RiskCard/RiskCard'
-import DashboardCard3 from '../Components/DashboardCard3/DashboardCard3'
-import AssetsTabel from '../Components/AssetsTabel/AssetsTabel'
-import SettingsIcon from"../../../assets/SVG (12).png"
-import barCahrtIcons from"../../../assets/SVG (13).png"
-import MisconfigurationsTabel from '../Components/MisconfigurationsTabel/MisconfigurationsTabel'
-import SeverityDistributionChart from '../Components/SeverityDistributionChart/SeverityDistributionChart'
-import UrgentRecommendations from '../Components/UrgentRecommendations/UrgentRecommendations'
-
-
+import React, { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
+import DashboardCard3 from "../Components/DashboardCard3/DashboardCard3";
+import SettingsIcon from "../../../assets/SVG (12).png";
+import barCahrtIcons from "../../../assets/SVG (13).png";
+import MisconfigurationsTabel from "../Components/MisconfigurationsTabel/MisconfigurationsTabel";
+import SeverityDistributionChart from "../Components/SeverityDistributionChart/SeverityDistributionChart";
+import UrgentRecommendations from "../Components/UrgentRecommendations/UrgentRecommendations";
+import NetworkAlert from "../Components/Shared/NetworkAlert";
+import NetworkLoading from "../Components/Shared/NetworkLoading";
+import useMisconfigurations from "../hooks/useMisconfigurations";
 
 export default function Misconfigurations() {
-  return <>
-  
+  const { setTitle } = useOutletContext();
+  const {
+    items,
+    severityCounts,
+    recommendations,
+    loading,
+    error,
+    severityFilter,
+    setSeverityFilter,
+    reload,
+  } = useMisconfigurations();
 
+  useEffect(() => {
+    setTitle("Misconfigurations");
+  }, [setTitle]);
 
-<div className="dashboard-container p-3 mb-3">
+  if (loading && !items.length) {
+    return <NetworkLoading message="Loading misconfigurations..." skeleton rows={4} />;
+  }
 
-<div className="row g-3 mb-4">
+  return (
+    <div className="dashboard-container p-3 mb-3">
+      <NetworkAlert error={error} onRetry={reload} />
 
-
+      <div className="row g-3 mb-4">
         <DashboardCard3
-            title={"Critical"}
-            icon={<i class="fa-solid fa-triangle-exclamation text-danger"></i>}
-            Statistics={"4"}
-            text2={"Active issues"}
+          title="Critical"
+          icon={<i className="fa-solid fa-triangle-exclamation text-danger" />}
+          Statistics={String(severityCounts.critical)}
+          text2="Active issues"
         />
-
-
         <DashboardCard3
-            title={"High"}
-            icon={<i class="fa-solid fa-triangle-exclamation text-danger"></i>}
-            Statistics={"3"}
-            text2={"Active issues"}
+          title="High"
+          icon={<i className="fa-solid fa-triangle-exclamation text-danger" />}
+          Statistics={String(severityCounts.high)}
+          text2="Active issues"
         />
-
-
-
         <DashboardCard3
-            title={"Medium"}
-            icon={<i class="fa-solid fa-circle-info text-warning"></i>}
-            Statistics={"0"}
-            text2={"Active issues"}
+          title="Medium"
+          icon={<i className="fa-solid fa-circle-info text-warning" />}
+          Statistics={String(severityCounts.medium)}
+          text2="Active issues"
         />
-
-
-
         <DashboardCard3
-                    title={"Fixed"}
-                    icon={<i class="fa-solid fa-circle-check text-success"></i>}
-                    Statistics={"2"}
-                    text2={"Active issues"}
+          title="Fixed"
+          icon={<i className="fa-solid fa-circle-check text-success" />}
+          Statistics={String(severityCounts.fixed)}
+          text2="Resolved"
         />
-    </div>
+      </div>
 
-    <div className='row m-0'>
+      <div className="row m-0">
         <div className="col-9 mb-0 p-0">
-            <div className='dashboard-card'>
-                <div className='d-flex justify-content-between align-items-center mb-3'>
-                    <div className='d-flex justify-content-between align-items-center'>
-                        <figure className='mb-0 me-2'>
-                            <img src={SettingsIcon} alt="assetsInventoryIcon" />
-                        </figure>
-                        <h6 className='text-white mb-0'>Active Misconfigurations <span>(9)</span></h6>
-                    </div>
-                    <div className='d-flex justify-content-between align-items-center'>
-                        <button className='btn action-btns rounded-3 me-3'><i class="fa-solid text-secondary fa-arrow-rotate-right"></i></button>
-                        <button className='btn action-btns rounded-3'><i class="fa-solid text-secondary fa-filter"></i></button>
-                    </div>
-                </div>
-                    <MisconfigurationsTabel />
+          <div className="dashboard-card">
+            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div className="d-flex align-items-center">
+                <figure className="mb-0 me-2">
+                  <img src={SettingsIcon} alt="misconfig" />
+                </figure>
+                <h6 className="text-white mb-0">Active Misconfigurations ({items.length})</h6>
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <select
+                  className="form-select scanType-select border-0"
+                  value={severityFilter}
+                  onChange={(e) => setSeverityFilter(e.target.value)}
+                >
+                  <option value="all">All Severities</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <button type="button" className="btn action-btns rounded-3" onClick={reload}>
+                  <i className="fa-solid text-secondary fa-arrow-rotate-right" />
+                </button>
+              </div>
             </div>
+            <MisconfigurationsTabel items={items} loading={loading} />
+          </div>
         </div>
 
-        <div className='col-3 mb-3'>
-            <div className="d-flex flex-column gap-3 mb-3">
-                <div className='dashboard-card'>
-                    <div className='d-flex align-items-center mb-0'>
-                        <figure className='mb-0 me-2'>
-                            <img src={barCahrtIcons} className='w-100' alt="assetsInventoryIcon" />
-                        </figure>
-                        <h6 className='text-white mb-3'>Severity Distribution</h6>
-                    </div>
-                    <SeverityDistributionChart />
-                </div>
+        <div className="col-3 mb-3">
+          <div className="d-flex flex-column gap-3 mb-3">
+            <div className="dashboard-card">
+              <div className="d-flex align-items-center mb-0">
+                <figure className="mb-0 me-2">
+                  <img src={barCahrtIcons} className="w-100" alt="chart" />
+                </figure>
+                <h6 className="text-white mb-3">Severity Distribution</h6>
+              </div>
+              <SeverityDistributionChart severityCounts={severityCounts} />
             </div>
+          </div>
 
-            <div className='col'>
+          <div className="col">
             <div className="d-flex flex-column gap-3">
-                <div className='dashboard-card'>
-                    <div className='d-flex align-items-center mb-4'>
-                        <i class="fa-solid fa-circle-info me-1" style={{color: "#F97316"}}></i>
-                        <h6 className='text-white m-0'>Urgent Recommendations</h6>
-                    </div>
-                    <UrgentRecommendations />
+              <div className="dashboard-card">
+                <div className="d-flex align-items-center mb-4">
+                  <i className="fa-solid fa-circle-info me-1" style={{ color: "#F97316" }} />
+                  <h6 className="text-white m-0">Urgent Recommendations</h6>
                 </div>
+                <UrgentRecommendations recommendations={recommendations} />
+              </div>
             </div>
+          </div>
         </div>
-
-
-
-
-
-        </div>
-
-
-
-        
+      </div>
     </div>
-
-    </div>
-
-
-  
-  
-  
-  </>
+  );
 }

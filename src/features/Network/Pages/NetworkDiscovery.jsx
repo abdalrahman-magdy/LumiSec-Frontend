@@ -1,80 +1,134 @@
-import React from 'react'
-import { useOutletContext } from 'react-router-dom';
-import diagonalIcon from "../../../assets/◈.png"
-import squareIcon from "../../../assets/▣.png"
-import ScanConfiguration from '../Components/ScanConfiguration/ScanConfiguration';
-import "./NetworkDiscovery.css"
-import SubnetOverview from '../Components/SubnetOverview/SubnetOverview';
-import HostsTabel from '../Components/HostsTabel/HostsTabel';
-
+import React, { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
+import diagonalIcon from "../../../assets/◈.png";
+import squareIcon from "../../../assets/▣.png";
+import ScanConfiguration from "../Components/ScanConfiguration/ScanConfiguration";
+import "./NetworkDiscovery.css";
+import SubnetOverview from "../Components/SubnetOverview/SubnetOverview";
+import HostsTabel from "../Components/HostsTabel/HostsTabel";
+import NetworkAlert from "../Components/Shared/NetworkAlert";
+import ScanProgress from "../Components/Shared/ScanProgress";
+import MisconfigurationsTabel from "../Components/MisconfigurationsTabel/MisconfigurationsTabel";
+import useNetworkDiscovery from "../hooks/useNetworkDiscovery";
 
 export default function NetworkDiscovery() {
+  const { setTitle } = useOutletContext();
+  const {
+    hosts,
+    subnets,
+    misconfigurations,
+    loading,
+    error,
+    progress,
+    scanning,
+    runDiscovery,
+    osFilter,
+    setOsFilter,
+    subnetFilter,
+    setSubnetFilter,
+    riskFilter,
+    setRiskFilter,
+    search,
+    setSearch,
+    osOptions,
+    subnetOptions,
+  } = useNetworkDiscovery();
 
-    const { title, setTitle } = useOutletContext();
+  useEffect(() => {
+    setTitle("Network Discovery");
+  }, [setTitle]);
 
-    setTitle("Network Discovery")
+  return (
+    <>
+      <NetworkAlert error={error} onRetry={() => runDiscovery({ subnet: "192.168.1.0/24" })} />
 
-  return <>
+      <ScanConfiguration onScan={runDiscovery} loading={loading} />
+      <ScanProgress progress={progress} status="Discovering network hosts..." active={scanning || loading} />
 
-  <ScanConfiguration />
-
-  <div className='dashboard-card mb-3'>
-        <div className='d-flex align-items-center mb-3'>
-            <figure className='mb-0 mt-2 me-2'>
-                <img src={diagonalIcon} className='w-100' alt="diagonalIcon" />
+      {subnets.length > 0 && (
+        <div className="dashboard-card mb-3">
+          <div className="d-flex align-items-center mb-3">
+            <figure className="mb-0 mt-2 me-2">
+              <img src={diagonalIcon} className="w-100" alt="subnet" />
             </figure>
-            <h6 className='text-white mb-0'>Subnet Overview</h6>
+            <h6 className="text-white mb-0">Subnet Overview</h6>
+          </div>
+          <div className="row justify-content-between align-items-center px-3">
+            {subnets.map((subnet) => (
+              <SubnetOverview
+                key={subnet.cidr}
+                title={subnet.cidr}
+                status={`${subnet.active}/${subnet.total} active`}
+                text={`Address Range: ${subnet.range}`}
+              />
+            ))}
+          </div>
         </div>
+      )}
 
-    <div className='row justify-content-between align-items-center px-3'>
-        <SubnetOverview
-        title={"192.168.1.0/24"}
-        status={"13/15 active"}
-        text={"Address Range: 1-254"}
-        />
-        <SubnetOverview
-        title={"10.0.0.0/24"}
-        status={"6/8 active"}
-        text={"Address Range: 1-254"}
-        />
-        <SubnetOverview
-        title={"172.16.0.0/24"}
-        status={"4/5 active"}
-        text={"Address Range: 1-254"}
-        />
-    </div>
+      <div className="dashboard-card mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div className="d-flex align-items-center">
+            <figure className="mb-1 me-2">
+              <img src={squareIcon} className="w-100" alt="hosts" />
+            </figure>
+            <h6 className="text-white mb-0">Discovered Hosts ({hosts.length})</h6>
+          </div>
 
-  </div>
-
-
-
-  <div className='dashboard-card mb-3'>
-        <div className='d-flex justify-content-between align-items-center mb-3'>
-            <div className='d-flex align-items-center mb-3'>
-                <figure className='mb-1 me-2'>
-                    <img src={squareIcon} className='w-100' alt="squareIcon" />
-                </figure>
-                <h6 className='text-white mb-0'>Discovered Hosts (15)</h6>
+          <div className="d-flex flex-wrap gap-2 align-items-center">
+            <div className="search-container">
+              <i className="fa-brands fa-sistrix discover-search-icon" />
+              <input
+                type="text"
+                className="form-control header-search-input rounded-3"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
-
-
-            <div className='search-container'>
-
-                <i className="fa-brands fa-sistrix discover-search-icon"></i>
-
-                <input
-                    type="text"
-                    className='form-control header-search-input rounded-3'
-                    placeholder='Search...'
-                />
-
-            </div>
-
+            <select
+              className="form-select scanType-select border-0"
+              value={osFilter}
+              onChange={(e) => setOsFilter(e.target.value)}
+            >
+              {osOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt === "all" ? "All OS" : opt}</option>
+              ))}
+            </select>
+            <select
+              className="form-select scanType-select border-0"
+              value={subnetFilter}
+              onChange={(e) => setSubnetFilter(e.target.value)}
+            >
+              {subnetOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt === "all" ? "All Subnets" : opt}</option>
+              ))}
+            </select>
+            <select
+              className="form-select scanType-select border-0"
+              value={riskFilter}
+              onChange={(e) => setRiskFilter(e.target.value)}
+            >
+              <option value="all">All Risk</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
         </div>
+        <HostsTabel hosts={hosts} loading={loading && !hosts.length} />
+      </div>
 
-        <HostsTabel />
-
-  </div>
-  
-  </>
+      {misconfigurations.length > 0 && (
+        <div className="dashboard-card mb-3 p-3">
+          <h6 className="text-white mb-3">
+            <i className="fa-solid fa-triangle-exclamation text-warning me-2" />
+            Post-Scan Misconfiguration Warnings
+          </h6>
+          <MisconfigurationsTabel items={misconfigurations} />
+        </div>
+      )}
+    </>
+  );
 }
