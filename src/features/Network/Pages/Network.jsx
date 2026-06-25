@@ -4,7 +4,6 @@ import { NavLink, Outlet , Link } from 'react-router-dom'
 
 
 import "./Network.css"
-import profile from "../../../assets/prrofile.png"
 
 import {
     CircleCheck,

@@ -32,6 +32,26 @@ export function AuthProvider({ children }) {
     return result;
   }, []);
 
+  const demoLogin = useCallback((email, rememberMe = true) => {
+    const normalizedEmail = email?.trim() || "demo@lumisec.local";
+    const demoUser = {
+      name: normalizedEmail.split("@")[0] || "Demo User",
+      email: normalizedEmail,
+      role: "admin",
+    };
+    const demoToken = `demo-token-${Date.now()}`;
+
+    setAuth(demoToken, demoUser, rememberMe);
+    setToken(demoToken);
+    setUser(demoUser);
+
+    return {
+      user: demoUser,
+      token: demoToken,
+      message: "Demo session started",
+    };
+  }, []);
+
   const logout = useCallback(() => {
     clearStoredAuth();
     setToken(null);
@@ -45,9 +65,10 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(token),
       isLoading,
       login,
+      demoLogin,
       logout,
     }),
-    [user, token, isLoading, login, logout]
+    [user, token, isLoading, login, demoLogin, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

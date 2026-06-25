@@ -1,15 +1,17 @@
 import React from 'react'
 import "./AutomatedPlayBook.css"
-import { Bug, Network, UserLock } from 'lucide-react'
+import { Bug } from 'lucide-react'
 
-export default function AutomatedPlayBook() {
+export default function AutomatedPlayBook({ playbooks = [], loading = false, onViewAll }) {
+    const rows = playbooks.slice(0, 5);
+
   return <>
   
   <div className='AutomatedPlayBook-card rounded-3 p-3 w-100'>
 
 <div className='d-flex justify-content-between align-items-center'>
     <h3 className='text-white mb-3'>Top Automated Playbooks</h3>
-    <p className='AutomatedPlayBook-view-all'>View All</p>
+    <button className='AutomatedPlayBook-view-all' type='button' onClick={onViewAll}>View All</button>
 </div>
 
 <table className='AutomatedPlayBook w-100'>
@@ -22,60 +24,20 @@ export default function AutomatedPlayBook() {
     </thead>
 
     <tbody>
-        <tr>
-            <td>
-                <div className='d-flex align-items-center'>
-                <div>
-                    <i class="fa-solid fa-envelope-open-text me-2 fs-5" style={{color: "#3B82F6"}}></i>
-                </div>
-                <p className='mb-0'>Phishing Email Response</p>
-                </div>
-            </td>
-            <td>284</td>
-            <td>142h</td>
-        </tr>
-        <tr>
-            <td>
-                <div className='d-flex align-items-center'>
-                    <div>
-                        <i class="fa-solid fa-shield-virus me-2 fs-5" style={{color: "#EF4444"}}></i>
+        {loading && <tr><td colSpan="3">Loading playbooks...</td></tr>}
+        {!loading && rows.length === 0 && <tr><td colSpan="3">No playbook runs yet.</td></tr>}
+        {!loading && rows.map((playbook) => (
+            <tr key={playbook.playbookId || playbook.name}>
+                <td>
+                    <div className='d-flex align-items-center'>
+                        <Bug color='#10B981' className='me-2' />
+                        <p className='mb-0'>{playbook.name || "Unnamed playbook"}</p>
                     </div>
-                    <p className='mb-0'>Malware Containment</p>
-                </div>
-            </td>
-            <td>156</td>
-            <td>89h</td>
-        </tr>
-        <tr>
-            <td>
-                <div className='d-flex align-items-center'>
-                    <UserLock color='#A855F7' className='me-2' />
-                    <p className='mb-0'>Account Lockout</p>
-                </div>
-            </td>
-            <td>128</td>
-            <td>64h</td>
-        </tr>
-        <tr>
-            <td>
-                <div className='d-flex align-items-center'>
-                    <Network color='#F59E0B' className='me-2' />
-                    <p className='mb-0'>Network Isolation</p>
-                </div>
-            </td>
-            <td>97</td>
-            <td>58h</td>
-        </tr>
-        <tr>
-            <td>
-                <div className='d-flex align-items-center'>
-                    <Bug color='#10B981' className='me-2' />
-                    <p className='mb-0'>Vulnerability Scan</p>
-                </div>
-            </td>
-            <td>73</td>
-            <td>67h</td>
-        </tr>
+                </td>
+                <td>{playbook.runs ?? 0}</td>
+                <td>{Math.round(playbook.successRate ?? 0)}%</td>
+            </tr>
+        ))}
     </tbody>
 
 </table>

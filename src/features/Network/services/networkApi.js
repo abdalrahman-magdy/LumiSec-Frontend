@@ -16,5 +16,4 @@ export {
   buildIntegrationPayload,
   LuminetApiError,
   luminetClient,
-  luminetStreamClient,
 } from "../../../services/luminet.api.js";

@@ -1,8 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
 import "./InvesigaionTimeline.css";
 import clock from "../../../../assets/Clock.png";
 
-export default function InvesigaionTimeline() {
+function formatEventTitle(event) {
+  if (event.type === "note") return "Analyst Note";
+  if (event.type === "playbook_run") return `Playbook ${event.status || "run"}`;
+  if (event.type === "alert") return `${event.source || "Alert"} - ${event.severity || "medium"}`;
+  if (event.type === "artifact") return `${event.artifactType || "Artifact"} added`;
+  if (event.type === "audit") return `Audit - ${event.action || "update"}`;
+  return "Incident Created";
+}
+
+function formatEventBody(event) {
+  return (
+    event.content ||
+    event.title ||
+    event.value ||
+    event.playbook?.name ||
+    event.action ||
+    "Incident activity recorded"
+  );
+}
+
+function formatTime(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function eventColorClass(event) {
+  if (event.type === "note") return "Invesigaion-Timeline-title-green";
+  if (event.type === "alert" || event.type === "artifact") return "Invesigaion-Timeline-title";
+  return "Invesigaion-Timeline-title-darkBlue";
+}
+
+export default function InvesigaionTimeline({
+  events = [],
+  onAddNote,
+  savingNote = false,
+  loading = false,
+}) {
+  const [note, setNote] = useState("");
+
+  const submitNote = async () => {
+    if (!note.trim() || savingNote) return;
+    await onAddNote?.(note);
+    setNote("");
+  };
+
   return (
     <div className="timeline-container">
 
@@ -11,77 +58,49 @@ export default function InvesigaionTimeline() {
         <figure>
           <img src={clock} className="icon" alt="clock" />
         </figure>
-        <h5 className="text-white mb-0">Invesigaion Timeline</h5>
+        <h5 className="text-white mb-0">Investigation Timeline</h5>
       </div>
 
-      {/* TIMELINE ITEMS */}
       <div className="timeline-list">
 
-        <div className="dashboard-card timeline-item">
-          <div className="timeline-header">
-            <h5 className="Invesigaion-Timeline-title">10:15 AM - System</h5>
-            <p>Just now</p>
-          </div>
-          <p className="text-white mb-0">Incident Created</p>
-        </div>
+        {loading && <div className="dashboard-card timeline-item text-white">Loading timeline...</div>}
 
-        <div className="dashboard-card timeline-item">
-          <div className="timeline-header">
-            <h5 className="Invesigaion-Timeline-title-darkBlue">
-              10:16 AM - Automation
-            </h5>
-            <p>1 min ago</p>
-          </div>
-          <p className="text-white mb-0">
-            Playbook "Threat Response" triggered automatically
-          </p>
-        </div>
+        {!loading && events.length === 0 && (
+          <div className="dashboard-card timeline-item text-white">No timeline events yet.</div>
+        )}
 
-        <div className="dashboard-card timeline-item">
-          <div className="timeline-header">
-            <h5 className="Invesigaion-Timeline-title-darkBlue">
-              10:15 AM - System
-            </h5>
-            <p>Just now</p>
+        {!loading && events.map((event, index) => (
+          <div className="dashboard-card timeline-item" key={`${event.type}-${event.timestamp}-${index}`}>
+            <div className="timeline-header">
+              <h5 className={eventColorClass(event)}>
+                {formatTime(event.timestamp)} - {formatEventTitle(event)}
+              </h5>
+              <p>{event.type}</p>
+            </div>
+            <p className="text-white mb-0">{formatEventBody(event)}</p>
           </div>
-          <p className="text-white mb-0">Incident Created</p>
-        </div>
-
-        <div className="dashboard-card timeline-item">
-          <div className="timeline-header">
-            <h5 className="Invesigaion-Timeline-title">10:17 AM - Automation</h5>
-            <p>2 min ago</p>
-          </div>
-          <p className="text-white mb-0">
-            IP 192.168.1.104 enriched via VirusTotal
-          </p>
-          <p className="text-danger mb-0">Result: 67/90 Malicious</p>
-        </div>
+        ))}
 
         {/* NOTE INPUT */}
         <div className="text-area-card rounded-3 p-2 mb-3">
           <textarea
             className="w-100 text-white mb-3"
             placeholder="Add Investigation note..."
+            aria-label="Add investigation note"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
           />
 
           <div className="d-flex justify-content-end">
-            <button className="btn add-note-btn border-0 text-white">
-              Add Note
+            <button
+              className="btn add-note-btn border-0 text-white"
+              type="button"
+              onClick={submitNote}
+              disabled={!note.trim() || savingNote}
+            >
+              {savingNote ? "Adding..." : "Add Note"}
             </button>
           </div>
-        </div>
-
-        <div className="dashboard-card timeline-item">
-          <div className="timeline-header">
-            <h5 className="Invesigaion-Timeline-title-green">
-              10:16 AM - Aly Hisham
-            </h5>
-            <p>5 min ago</p>
-          </div>
-          <p className="text-white mb-0">
-            Host SRV-01 has been isolated from the network pending investigation.
-          </p>
         </div>
 
       </div>

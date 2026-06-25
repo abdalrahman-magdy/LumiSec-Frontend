@@ -21,27 +21,37 @@ ChartJS.register(
     Legend
 );
 
-export default function DashboardBarChart() {
+export default function DashboardBarChart({ incidentsOverTime = [] }) {
+    const labels = [...new Set(incidentsOverTime.map((item) => item._id?.date).filter(Boolean))];
+    const severities = ["medium", "high", "critical"];
+    const valuesBySeverity = Object.fromEntries(severities.map((severity) => [severity, []]));
+
+    labels.forEach((date) => {
+        severities.forEach((severity) => {
+            const item = incidentsOverTime.find((entry) => entry._id?.date === date && entry._id?.severity === severity);
+            valuesBySeverity[severity].push(item?.count || 0);
+        });
+    });
 
     const data = {
-        labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+        labels: labels.length ? labels : ["No data"],
 
         datasets: [
             {
                 label: "Medium",
-                data: [0, 0, 0, 50],
+                data: labels.length ? valuesBySeverity.medium : [0],
                 backgroundColor: "#10B981",
                 borderRadius: { topRight: 0, topLeft: 0, bottomRight: 0, bottomLeft: 0 } 
             },
             {
                 label: "High",
-                data: [0, 0, 0, 40],
+                data: labels.length ? valuesBySeverity.high : [0],
                 backgroundColor: "#F59E0B",
                 borderRadius: { topRight: 0, topLeft: 0, bottomRight: 0, bottomLeft: 0 }
             },
             {
                 label: "Critical",
-                data: [0, 0, 0, 20],
+                data: labels.length ? valuesBySeverity.critical : [0],
                 backgroundColor: "#EF4444",
                 borderRadius: { topRight: 8, topLeft: 8, bottomRight: 0, bottomLeft: 0 }
             },
@@ -79,8 +89,7 @@ export default function DashboardBarChart() {
                     y: {
                         stacked: true,
                         min: 0,
-                        max: 120,
-                        ticks: { stepSize: 20 }
+                        ticks: { precision: 0 }
                     },
                 },
             }}

@@ -12,25 +12,38 @@ export default function LandingPageEditor() {
   const navigate = useNavigate();
   const isNew = id === "new";
   const { page, loading, createLandingPage, updateLandingPage } = useLandingPages(isNew ? null : id);
-  const [form, setForm] = useState({ name: "", url: "", html: "", category: "credential" });
+  const [form, setForm] = useState({ name: "", title: "", redirectUrl: "", htmlContent: "" });
   const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (page) setForm({ name: page.name, url: page.url, html: page.html ?? "", category: page.category });
+    if (page) {
+      setForm({
+        name: page.name ?? "",
+        title: page.title ?? page.name ?? "",
+        redirectUrl: page.raw?.redirectUrl ?? page.url ?? "",
+        htmlContent: page.raw?.htmlContent ?? page.html ?? "",
+      });
+    }
   }, [page]);
 
   const handleSave = async (e) => {
     e.preventDefault();
     setError(null);
+    setSaving(true);
     try {
       if (isNew) {
         const res = await createLandingPage(form);
-        navigate(`/Phishing/LandingPages/${res.data?.id}/edit`);
+        const nextId = res.data?._id ?? res.data?.id ?? res.data?.page?._id ?? res.data?.page?.id;
+        if (!nextId) throw new Error("Landing page created but no id was returned.");
+        navigate(`/Phishing/LandingPages/${nextId}/edit`);
       } else {
         await updateLandingPage(id, form);
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -46,9 +59,12 @@ export default function LandingPageEditor() {
         <PhishingAlert type="danger" message={error} />
         <form onSubmit={handleSave} className="dashboard-card p-3">
           <div className="mb-3"><label className="text-secondary">Name</label><input className="form-control header-search-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-          <div className="mb-3"><label className="text-secondary">URL Path</label><input className="form-control header-search-input" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="/lp/example" /></div>
-          <div className="mb-3"><label className="text-secondary">HTML Content</label><textarea className="form-control header-search-input" rows={14} value={form.html} onChange={(e) => setForm({ ...form, html: e.target.value })} /></div>
-          <button type="submit" className="btn add-btn text-white border-0">Save</button>
+          <div className="mb-3"><label className="text-secondary">Title</label><input className="form-control header-search-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
+          <div className="mb-3"><label className="text-secondary">Redirect URL</label><input className="form-control header-search-input" value={form.redirectUrl} onChange={(e) => setForm({ ...form, redirectUrl: e.target.value })} placeholder="https://example.com/after-training" /></div>
+          <div className="mb-3"><label className="text-secondary">HTML Content</label><textarea className="form-control header-search-input" rows={14} value={form.htmlContent} onChange={(e) => setForm({ ...form, htmlContent: e.target.value })} required /></div>
+          <button type="submit" className="btn add-btn text-white border-0" disabled={saving}>
+            {saving ? "Saving..." : "Save"}
+          </button>
         </form>
       </div>
     </RoleGate>

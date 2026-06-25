@@ -32,9 +32,16 @@ export default function CampaignCreate() {
     setError(null);
     try {
       const res = await createCampaign(form);
-      const id = res.data?.id ?? res.data?.campaign?.id;
+      const id = res.data?._id ?? res.data?.id ?? res.data?.campaign?._id ?? res.data?.campaign?.id;
       if (selectedRecipients.length) {
-        await attachCampaignRecipients(id, selectedRecipients);
+        const recipients = allRecipients
+          .filter((recipient) => selectedRecipients.includes(recipient.id))
+          .map((recipient) => ({
+            email: recipient.email,
+            fullName: recipient.name,
+            department: recipient.department,
+          }));
+        await attachCampaignRecipients(id, recipients);
       }
       navigate(`/Phishing/Campaigns/${id}/launch`);
     } catch (err) {

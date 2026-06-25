@@ -21,15 +21,16 @@ ChartJS.register(
     Legend
 );
 
-export default function DashboardBarChart() {
+export default function DashboardBarChart({ statusCounts = [] }) {
+    const rows = statusCounts.length ? statusCounts : [{ _id: "none", count: 0 }];
 
     const data = {
-        labels: ["Jan", "Feb", "Mar", "Apr"],
+        labels: rows.map((item) => String(item._id || "unspecified").replaceAll("_", " ")),
 
         datasets: [
             {
-                label: "Audits",
-                data: [12, 19, 3, 5],
+                label: "Findings",
+                data: rows.map((item) => item.count || 0),
                 backgroundColor: "#4F46E5",
             },
         ],
@@ -43,6 +44,9 @@ return <>
             options={{
                 responsive: true,
                 maintainAspectRatio: false,
+                scales: {
+                    y: { ticks: { precision: 0 } }
+                }
             }}
         />
     </div>

@@ -17,17 +17,18 @@ ChartJS.register(
     Legend
 );
 
-export default function DashboardPieChart() {
+export default function DashboardPieChart({ severityCounts = [] }) {
+const rows = severityCounts.length ? severityCounts : [{ _id: "none", count: 0 }];
 
 const data = {
 
-    labels: ["Jan", "Feb", "Mar", "Apr"],
+    labels: rows.map((item) => String(item._id || "unspecified").replaceAll("_", " ")),
 
     datasets: [
         {
             label: "Audits",
 
-            data: [12, 19, 3, 5],
+            data: rows.map((item) => item.count || 0),
 
             backgroundColor: [
                 "#4F46E5",

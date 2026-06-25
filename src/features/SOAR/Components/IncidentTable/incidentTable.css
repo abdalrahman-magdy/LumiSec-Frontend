@@ -21,6 +21,16 @@ table.incidentTable {
     border-top: 1px solid #2A3042;
     font-size: 0.8rem;
   }
+
+  table.incidentTable tbody tr {
+    transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  table.incidentTable tbody tr:hover {
+    transform: translateX(4px);
+    background-color: rgba(83, 155, 255, 0.055);
+    box-shadow: inset 3px 0 0 rgba(83, 155, 255, 0.75);
+  }
   
   .table-responsive-wrapper {
     width: 100%;
@@ -53,6 +63,36 @@ table.incidentTable {
   .investigate-btn {
     background: linear-gradient(90deg, #7F56D9, #539BFF);
   }
+
+  .investigate-btn,
+  table.incidentTable .btn-secondary {
+    transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+  }
+
+  .investigate-btn:hover,
+  table.incidentTable .btn-secondary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 12px 24px rgba(83, 155, 255, 0.2);
+  }
+
+  .incident-filter-select {
+    min-height: 40px;
+    border: 1px solid #2A3042;
+    border-radius: 7px;
+    padding: 0 12px;
+    color: #ffffff;
+    background: #5f6d7b;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+    cursor: pointer;
+  }
+
+  .incident-filter-select:hover,
+  .incident-filter-select:focus {
+    border-color: #58A6FF;
+    box-shadow: 0 0 0 3px rgba(83, 155, 255, 0.18);
+    outline: none;
+  }
   
   /* colors */
   .ip-div p,
@@ -68,6 +108,38 @@ table.incidentTable {
     background-color: #F8A30656 !important;
     color: #BF8300 !important;
     border: 2px solid #FB8500;
+  }
+
+  .incidentTable .critical {
+    background-color: #f852492f !important;
+    color: #ff4d4d !important;
+    border: 2px solid #F85149;
+  }
+
+  .incidentTable .medium {
+    background-color: #58A6FF2f !important;
+    color: #58A6FF !important;
+    border: 2px solid #58A6FF;
+  }
+
+  .incidentTable .low {
+    background-color: #3fb9502f !important;
+    color: #3FB950 !important;
+    border: 2px solid #3FB950;
+  }
+
+  .incident-table-state {
+    padding: 26px 18px;
+    color: #C9D1D9;
+    border-top: 1px solid #2A3042;
+  }
+
+  .incident-table-error {
+    color: #F85149;
+  }
+
+  .incident-muted {
+    color: #9DA3B0;
   }
   
   .high p {

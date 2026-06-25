@@ -12,12 +12,28 @@ export default function TemplateEditor() {
   const navigate = useNavigate();
   const isNew = id === "new";
   const { template, loading, createTemplate, updateTemplate } = useTemplates(isNew ? null : id);
-  const [form, setForm] = useState({ name: "", subject: "", body: "", category: "credential" });
+  const [form, setForm] = useState({
+    name: "",
+    subject: "",
+    htmlBody: "",
+    textBody: "",
+    category: "credential",
+    language: "en",
+  });
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (template) setForm({ name: template.name, subject: template.subject, body: template.body ?? "", category: template.category });
+    if (template) {
+      setForm({
+        name: template.name ?? "",
+        subject: template.subject ?? "",
+        htmlBody: template.raw?.htmlBody ?? template.body ?? "",
+        textBody: template.raw?.textBody ?? "",
+        category: template.category ?? "credential",
+        language: template.raw?.language ?? "en",
+      });
+    }
   }, [template]);
 
   const handleSave = async (e) => {
@@ -27,7 +43,9 @@ export default function TemplateEditor() {
     try {
       if (isNew) {
         const res = await createTemplate(form);
-        navigate(`/Phishing/Templates/${res.data?.id ?? res.data?.template?.id}/edit`);
+        const nextId = res.data?._id ?? res.data?.id ?? res.data?.template?._id ?? res.data?.template?.id;
+        if (!nextId) throw new Error("Template created but no id was returned.");
+        navigate(`/Phishing/Templates/${nextId}/edit`);
       } else {
         await updateTemplate(id, form);
       }
@@ -67,8 +85,16 @@ export default function TemplateEditor() {
             </select>
           </div>
           <div className="mb-3">
+            <label className="text-secondary">Language</label>
+            <input className="form-control header-search-input" value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} placeholder="en" />
+          </div>
+          <div className="mb-3">
             <label className="text-secondary">HTML Body</label>
-            <textarea className="form-control header-search-input" rows={12} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
+            <textarea className="form-control header-search-input" rows={12} value={form.htmlBody} onChange={(e) => setForm({ ...form, htmlBody: e.target.value })} required />
+          </div>
+          <div className="mb-3">
+            <label className="text-secondary">Text Body</label>
+            <textarea className="form-control header-search-input" rows={5} value={form.textBody} onChange={(e) => setForm({ ...form, textBody: e.target.value })} />
           </div>
           <button type="submit" className="btn add-btn text-white border-0" disabled={saving}>
             {saving ? "Saving..." : "Save Template"}

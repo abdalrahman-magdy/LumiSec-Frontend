@@ -36,18 +36,18 @@ export default function Dashboard() {
   }, [setTitle]);
 
   const handleDiscovery = async () => {
-    await runDiscovery();
-    navigate("/Network/NetworkDiscovery");
+    const ok = await runDiscovery();
+    if (ok) navigate("/Network/NetworkDiscovery");
   };
 
   const handlePortScan = async () => {
-    await runPortScan();
-    navigate("/Network/PortScanning");
+    const ok = await runPortScan();
+    if (ok) navigate("/Network/PortScanning");
   };
 
   const handleSniffing = async () => {
-    await runSniffing();
-    navigate("/Network/PacketCapture");
+    const ok = await runSniffing();
+    if (ok) navigate("/Network/PacketCapture");
   };
 
   if (loading && !summary) {

@@ -68,6 +68,12 @@
     border-color: #F59E0B;
 }
 
+.auth-alert-info {
+    background-color: #172033;
+    color: #A5B4FC;
+    border-color: #539BFF;
+}
+
 .auth-alert-incident {
     background-color: #2E212C;
     color: #FCA5A5;
@@ -77,6 +83,26 @@
 
 .sign-in-btn{
     background-color: #DC2626;
+}
+
+.create-account-btn{
+    background: linear-gradient(90deg, #7F56D9, #539BFF);
+    border: 0;
+}
+
+.create-account-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.link-action {
+    background: transparent;
+    border: 0;
+    padding: 0;
+}
+
+.link-action:disabled {
+    opacity: 0.7;
 }
 
 .sepration-text::before{

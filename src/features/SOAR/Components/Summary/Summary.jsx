@@ -4,7 +4,41 @@ import "./Summary.css";
 import breif from "../../../../assets/Brief.png";
 import TouchId from "../../../../assets/Touch ID.png";
 
-export default function Summary() {
+function formatDate(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatTime(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatStatus(value = "new") {
+  return value.replaceAll("_", " ");
+}
+
+function getArtifactAction(type) {
+  if (type === "ip") return { action: "block_ip", label: "Block" };
+  if (["hash", "file", "url", "domain"].includes(type)) return { action: "scan_artifact", label: "Scan" };
+  return null;
+}
+
+export default function Summary({ incident, artifacts = [], loading = false, actionLoading, onArtifactAction }) {
+  const groupedArtifacts = artifacts.reduce((groups, artifact) => {
+    const key = artifact.type || "other";
+    groups[key] = groups[key] || [];
+    groups[key].push(artifact);
+    return groups;
+  }, {});
+
   return (
     <div className="summary-container">
 
@@ -22,27 +56,27 @@ export default function Summary() {
 
           <div className="summary-row">
             <p className="title">Severity:</p>
-            <p className="text-danger">Critical</p>
+            <p className="text-danger text-capitalize">{incident?.severity || "—"}</p>
           </div>
 
           <div className="summary-row">
             <p className="title">Status:</p>
-            <p className="in-progress">In Progress</p>
+            <p className="in-progress text-capitalize">{incident ? formatStatus(incident.status) : "—"}</p>
           </div>
 
           <div className="summary-row">
             <p className="title">Created:</p>
-            <p className="text-white">Oct 26, 2025</p>
+            <p className="text-white">{formatDate(incident?.createdAt)}</p>
           </div>
 
           <div className="summary-row">
             <p className="title">Time:</p>
-            <p className="text-white">10:15 AM</p>
+            <p className="text-white">{formatTime(incident?.createdAt)}</p>
           </div>
 
           <div className="summary-row">
             <p className="title">Source:</p>
-            <p className="text-white">CrowdStrike</p>
+            <p className="text-white">{incident?.sourceIP || incident?.incidentType || "—"}</p>
           </div>
 
         </div>
@@ -58,43 +92,37 @@ export default function Summary() {
           <h5 className="text-white mb-0">Artifacts</h5>
         </div>
 
-        {/* IP */}
-        <div className="summary-card p-3 rounded-3 mb-3">
-          <p className="summary-card-title">IP Addresses</p>
+        {loading && <p className="summary-card-title">Loading artifacts...</p>}
 
-          <div className="artifact-row">
-            <p className="text-white mb-0">192.168.1.104</p>
-            <p className="block rounded-3 fw-bold px-3 py-1">Block</p>
+        {!loading && artifacts.length === 0 && (
+          <div className="summary-card p-3 rounded-3 mb-3">
+            <p className="summary-card-title mb-0">No artifacts yet</p>
           </div>
-        </div>
+        )}
 
-        {/* Hash */}
-        <div className="summary-card p-3 rounded-3 mb-3">
-          <p className="summary-card-title">File Hashes</p>
+        {!loading && Object.entries(groupedArtifacts).map(([type, items]) => (
+          <div className="summary-card p-3 rounded-3 mb-3" key={type}>
+            <p className="summary-card-title text-capitalize">{type}</p>
 
-          <div className="artifact-row">
-            <p className="text-white mb-0">e1a2b3c4d5...</p>
-            <p className="scan rounded-3 fw-bold px-3 py-1">Scan</p>
+            {items.map((artifact) => (
+              <div className="artifact-row mb-2" key={artifact._id || artifact.value}>
+                <p className="text-white mb-0">{artifact.value}</p>
+                {getArtifactAction(type) ? (
+                  <button
+                    type="button"
+                    className={`${getArtifactAction(type).action === "block_ip" ? "block" : "scan"} rounded-3 fw-bold px-3 py-1 border-0`}
+                    disabled={Boolean(actionLoading)}
+                    onClick={() => onArtifactAction?.(getArtifactAction(type).action, artifact)}
+                  >
+                    {actionLoading === getArtifactAction(type).action ? "..." : getArtifactAction(type).label}
+                  </button>
+                ) : (
+                  artifact.label && <p className="scan rounded-3 fw-bold px-3 py-1">{artifact.label}</p>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
-
-        {/* Domains */}
-        <div className="summary-card p-3 rounded-3 mb-3">
-          <p className="summary-card-title">Domains</p>
-
-          <div className="artifact-row">
-            <p className="text-white mb-0">malicious-domain.com</p>
-          </div>
-        </div>
-
-        {/* Files */}
-        <div className="summary-card p-3 rounded-3 mb-3">
-          <p className="summary-card-title">Files</p>
-
-          <div className="artifact-row">
-            <p className="text-white mb-0">malware.exe</p>
-          </div>
-        </div>
+        ))}
 
       </div>
     </div>

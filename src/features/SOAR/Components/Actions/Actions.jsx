@@ -8,7 +8,29 @@ import wiFi from "../../../../assets/Wi-Fi Disconnected.png";
 import IrisScan from "../../../../assets/Iris Scan.png";
 import KeySecurity from "../../../../assets/Key Security.png";
 
-export default function Actions() {
+function formatDate(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatTime(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export default function Actions({ related, alerts = [], actionLoading, onAction }) {
+  const relatedIncidents = [
+    ...(related?.explicit || []),
+    ...(related?.inferred || []),
+  ];
+
   return (
     <div className="actions-container mb-5">
 
@@ -24,19 +46,31 @@ export default function Actions() {
 
         <div className="actions-buttons">
 
-          <button className="action-btn isolate-btn w-100 d-flex align-items-center">
+          <button
+            className="action-btn isolate-btn w-100 d-flex align-items-center"
+            disabled={Boolean(actionLoading)}
+            onClick={() => onAction?.("isolate_host")}
+          >
             <img src={wiFi} alt="wiFi" />
-            Isolate Host
+            {actionLoading === "isolate_host" ? "Isolating..." : "Isolate Host"}
           </button>
 
-          <button className="action-btn scan-btn w-100 d-flex align-items-center">
+          <button
+            className="action-btn scan-btn w-100 d-flex align-items-center"
+            disabled={Boolean(actionLoading)}
+            onClick={() => onAction?.("scan_endpoint")}
+          >
             <img src={IrisScan} alt="scan" />
             Scan Endpoint
           </button>
 
-          <button className="action-btn reset-btn w-100 d-flex align-items-center">
+          <button
+            className="action-btn reset-btn w-100 d-flex align-items-center"
+            disabled={Boolean(actionLoading)}
+            onClick={() => onAction?.("reset_password")}
+          >
             <img src={KeySecurity} alt="reset" />
-            Reset User Password
+            {actionLoading === "reset_password" ? "Requesting..." : "Reset User Password"}
           </button>
 
         </div>
@@ -54,15 +88,18 @@ export default function Actions() {
 
         <div className="card-list">
 
-          <div className="action-card p-3 rounded-3">
-            <p className="text-white fw-medium mb-1">Similar malware on SRV-02</p>
-            <p className="text-white mb-0">Oct 24, 2025</p>
-          </div>
+          {relatedIncidents.length === 0 && (
+            <div className="action-card p-3 rounded-3">
+              <p className="text-white mb-0">No related incidents found.</p>
+            </div>
+          )}
 
-          <div className="action-card p-3 rounded-3">
-            <p className="text-white fw-medium mb-1">Network anomaly detected</p>
-            <p className="text-white mb-0">Oct 23, 2025</p>
-          </div>
+          {relatedIncidents.map((incident) => (
+            <div className="action-card p-3 rounded-3" key={incident._id}>
+              <p className="text-white fw-medium mb-1">{incident.title}</p>
+              <p className="text-white mb-0">{formatDate(incident.createdAt)}</p>
+            </div>
+          ))}
 
         </div>
       </div>
@@ -79,35 +116,24 @@ export default function Actions() {
 
         <div className="card-list">
 
-          <div className="action-card p-3 rounded-3">
-
-            <div className="alert-row">
-              <p className="text-white fw-medium mb-0">Suspicious Process</p>
-              <p className="high-action px-3 rounded-3 mb-0">High</p>
+          {alerts.length === 0 && (
+            <div className="action-card p-3 rounded-3">
+              <p className="text-white mb-0">No linked alerts found.</p>
             </div>
+          )}
 
-            <p className="text-white mb-0">CrowdStrike • 10:15 AM</p>
-          </div>
+          {alerts.map((alert, index) => (
+            <div className="action-card p-3 rounded-3" key={`${alert.title}-${alert.timestamp}-${index}`}>
+              <div className="alert-row">
+                <p className="text-white fw-medium mb-0">{alert.title}</p>
+                <p className={`${alert.severity === "medium" ? "medium-action" : "high-action"} px-3 rounded-3 mb-0 text-capitalize`}>
+                  {alert.severity || "medium"}
+                </p>
+              </div>
 
-          <div className="action-card p-3 rounded-3">
-
-            <div className="alert-row">
-              <p className="text-white fw-medium mb-0">Network Connection</p>
-              <p className="medium-action px-3 rounded-3 mb-0">Medium</p>
+              <p className="text-white mb-0">{alert.source || "SOAR"} • {formatTime(alert.timestamp)}</p>
             </div>
-
-            <p className="text-white mb-0">Firewall • 10:16 AM</p>
-          </div>
-
-          <div className="action-card p-3 rounded-3">
-
-            <div className="alert-row">
-              <p className="text-white fw-medium mb-0">File Hash Match</p>
-              <p className="high-action px-3 rounded-3 mb-0">Critical</p>
-            </div>
-
-            <p className="text-white mb-0">VirusTotal • 10:17 AM</p>
-          </div>
+          ))}
 
         </div>
       </div>

@@ -1,4 +1,3 @@
-import React from "react";
 import { getPhishingRole } from "../../utils/roles";
 
 export default function RoleGate({ allow, children, fallback = null }) {

@@ -1,12 +1,18 @@
 /* ================= ROOT ================= */
 .summary-container {
     width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
   }
   
   /* ================= HEADER ICON ================= */
   .section-header {
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 22px;
+  }
+
+  .section-header figure {
+    margin: 0;
   }
   
   .section-header .icon {
@@ -28,19 +34,25 @@
   .summary-grid {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 22px;
   }
   
   .summary-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+  }
+
+  .summary-row p {
+    margin: 0;
   }
   
   /* ================= CARDS ================= */
   .summary-card {
     background-color: #414B61;
-    border-radius: 10px;
+    border-radius: 8px;
+    min-height: 86px;
   }
   
   .summary-card-title {
@@ -61,12 +73,30 @@
     background-color: #f852492f;
     color: #FF1F1F;
     cursor: pointer;
+    margin: 0;
   }
   
   .scan {
     background-color: #0076fd56;
     color: #7178FF;
     cursor: pointer;
+    margin: 0;
+  }
+
+  button.block,
+  button.scan {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    line-height: 1.5;
+  }
+
+  button.block:disabled,
+  button.scan:disabled {
+    opacity: 1;
   }
   
   /* ================= TABLET ================= */

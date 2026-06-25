@@ -23,7 +23,7 @@ function handleResponseError(error) {
     const returnUrl = encodeURIComponent(
       window.location.pathname + window.location.search
     );
-    window.location.href = `/?session=expired&returnUrl=${returnUrl}`;
+    window.location.href = `/login?session=expired&returnUrl=${returnUrl}`;
     return Promise.reject(new Error("Session expired. Redirecting to login..."));
   }
 

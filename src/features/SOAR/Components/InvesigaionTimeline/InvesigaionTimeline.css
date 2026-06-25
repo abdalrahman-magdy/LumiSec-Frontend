@@ -1,12 +1,18 @@
 /* ================= CONTAINER ================= */
 .timeline-container {
     width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
   }
   
   /* ================= HEADER ================= */
   .section-header {
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 28px;
+  }
+
+  .section-header figure {
+    margin: 0;
   }
   
   .section-header .icon {
@@ -31,12 +37,13 @@
   .timeline-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
   }
   
   /* ================= CARD ================= */
   .timeline-item {
-    padding: 12px;
+    padding: 18px 20px;
+    min-height: 112px;
   }
   
   /* ================= HEADER INSIDE CARD ================= */
@@ -45,7 +52,13 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
+  }
+
+  .timeline-header h5 {
+    margin: 0;
+    font-size: 1.18rem;
+    font-weight: 800;
   }
   
   .timeline-header p {
@@ -57,19 +70,23 @@
   /* ================= TEXTAREA CARD ================= */
   .text-area-card {
     background-color: #414B61;
+    border: 3px solid #2a3042;
   }
   
   .text-area-card textarea {
-    background-color: transparent;
+    display: block;
+    min-height: 104px;
+    padding: 12px;
+    background-color: #0d111b;
     border: none;
     resize: none;
     outline: none;
-    min-height: 80px;
   }
   
   /* ================= BUTTON ================= */
   .add-note-btn {
     background: linear-gradient(90deg, #7F56D9, #539BFF);
+    min-width: 118px;
   }
   
   /* ================= TABLET ================= */

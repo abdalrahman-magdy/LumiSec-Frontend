@@ -85,10 +85,15 @@ export default function useNetworkDashboard() {
   const runDiscovery = useCallback(async (payload = { subnet: "192.168.1.0/24" }) => {
 
     setActionLoading("discover");
+    setError(null);
 
     try {
 
       await discoverNetwork(payload);
+      return true;
+    } catch (err) {
+      setError(toNetworkError(err));
+      return false;
 
     } finally {
 
@@ -103,10 +108,15 @@ export default function useNetworkDashboard() {
   const runPortScan = useCallback(async (payload = { target: "192.168.1.45", ports: "22,80,443", scanMode: "CONNECT" }) => {
 
     setActionLoading("portscan");
+    setError(null);
 
     try {
 
       await scanPorts(payload);
+      return true;
+    } catch (err) {
+      setError(toNetworkError(err));
+      return false;
 
     } finally {
 
@@ -121,10 +131,15 @@ export default function useNetworkDashboard() {
   const runSniffing = useCallback(async (payload = { interface: "eth0" }) => {
 
     setActionLoading("sniff");
+    setError(null);
 
     try {
 
       await startSniffing(payload);
+      return true;
+    } catch (err) {
+      setError(toNetworkError(err));
+      return false;
 
     } finally {
 

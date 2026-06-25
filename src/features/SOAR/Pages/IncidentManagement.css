@@ -1,35 +1,221 @@
-
-.summary{
-    background-color: #1E293B;
-    border: 1px solid #536783;
-    height: stretch;
+.incident-management-page {
+    min-height: 100vh;
+    overflow: hidden;
+    color: #ffffff;
+    background: #10141f;
 }
 
-.dashboard-card{
+.incident-management-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 10px 18px;
+    border-bottom: 2px solid #553399;
+    background-color: #1b202d;
+}
+
+.incident-management-header-left,
+.incident-management-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.incident-management-header-left {
+    flex: 1 1 auto;
+}
+
+.incident-management-header-actions {
+    flex: 0 0 auto;
+}
+
+.incident-management-logo {
+    width: 54px;
+    min-width: 54px;
+}
+
+.incident-management-logo img {
+    display: block;
+    width: 100%;
+}
+
+.incident-management-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.incident-management-title h1 {
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(90deg, #7f56d9, #539bff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-size: clamp(1.05rem, 1.55vw, 1.45rem);
+    font-weight: 800;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.incident-management-title span,
+.Incident {
+    flex: 0 0 auto;
+    border-radius: 16px;
+    padding: 8px 14px;
+    color: #bf8300;
+    background-color: #f8a30656;
+}
+
+.Incidents-Queue-btn,
+.Close-Incident-btn,
+.incident-management-header-actions .form-select {
+    min-height: 42px;
+    font-size: 0.98rem;
+}
+
+.Incidents-Queue-btn {
+    width: 190px;
+    gap: 8px;
+    justify-content: center;
+    padding: 8px 12px;
+    background-color: #44546b;
+}
+
+.Incidents-Queue-btn img {
+    width: 26px;
+    height: 26px;
+}
+
+.incident-management-header-actions .form-select {
+    width: 170px;
+    background-color: #44546b;
+}
+
+.Close-Incident-btn {
+    width: 198px;
+    gap: 8px;
+    justify-content: center;
+    padding: 8px 14px;
+    background: linear-gradient(90deg, #7f56d9, #539bff);
+}
+
+.incident-management-profile {
+    flex: 0 0 auto;
+}
+
+.incident-management-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(480px, 2fr) minmax(300px, 0.96fr);
+    min-height: calc(100vh - 72px);
+}
+
+.incident-management-error {
+    margin: 18px;
+    border: 1px solid rgba(248, 81, 73, 0.38);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #ffffff;
+    background: rgba(248, 81, 73, 0.12);
+}
+
+.incident-management-success {
+    border-color: rgba(46, 204, 113, 0.42);
+    background: rgba(46, 204, 113, 0.14);
+}
+
+.incident-management-summary-panel,
+.incident-management-actions-panel {
+    overflow-y: auto;
+    border-color: #536783;
+    background-color: #1e293b;
+}
+
+.incident-management-summary-panel {
+    border-right: 1px solid #536783;
+    padding: 28px 16px 22px;
+}
+
+.incident-management-timeline-panel {
+    overflow-y: auto;
+    padding: 28px clamp(24px, 3vw, 52px);
+    background-color: #10141f;
+}
+
+.incident-management-actions-panel {
+    border-left: 1px solid #536783;
+    padding: 28px 16px 22px;
+}
+
+.incident-management-page .dashboard-card {
+    border: 3px solid #2a3042;
+    border-radius: 12px;
     background-color: var(--container-background);
-    border: 3px solid #2A3042;
 }
 
+@media (max-width: 1320px) {
+    .incident-management-topbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
 
-
-.actions{
-    background-color: #1E293B;
-    border: 1px solid #536783;
-    height: stretch;
+    .incident-management-header-actions {
+        order: 3;
+        width: 100%;
+        justify-content: flex-end;
+    }
 }
 
-.Incident{
-    background-color: #F8A30656 !important;
-    color: #BF8300 !important;
+@media (max-width: 1100px) {
+    .incident-management-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .incident-management-summary-panel,
+    .incident-management-actions-panel,
+    .incident-management-timeline-panel {
+        overflow: visible;
+        border: 0;
+        padding: 22px 18px;
+    }
 }
 
-.Incidents-Queue-btn{
-    background-color: #44546B !important;
-    width: 200px;
-}
+@media (max-width: 760px) {
+    .incident-management-page {
+        overflow: visible;
+    }
 
+    .incident-management-topbar {
+        position: relative;
+        gap: 12px;
+    }
 
-.Close-Incident-btn{
-    background: linear-gradient(90deg , #7F56D9 , #539BFF);
-    width: 200px;
+    .incident-management-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .incident-management-title h1 {
+        white-space: normal;
+    }
+
+    .incident-management-header-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .Incidents-Queue-btn,
+    .Close-Incident-btn,
+    .incident-management-header-actions .form-select {
+        width: 100%;
+    }
 }

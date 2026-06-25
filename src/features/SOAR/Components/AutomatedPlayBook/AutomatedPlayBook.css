@@ -22,10 +22,18 @@ table.AutomatedPlayBook td{
 }
 
 .AutomatedPlayBook-view-all{
+    border: 0;
+    padding: 0;
     background: linear-gradient(90deg , #7F56D9 , #539BFF);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.AutomatedPlayBook-view-all:hover{
+    filter: brightness(1.2);
 }
 
 

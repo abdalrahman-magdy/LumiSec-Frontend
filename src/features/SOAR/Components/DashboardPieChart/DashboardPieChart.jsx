@@ -15,15 +15,18 @@ ChartJS.register(
     Legend
 );
 
-export default function DashboardPieChart() {
+export default function DashboardPieChart({ incidentTypes = [] }) {
+    const colors = ["#26ACFF", "#10B981", "#EC4899", "#A855F7", "#64748B"];
 
-    const rawData = [
-        { label: "Phishing", value: 40, color: "#26ACFF" },
-        { label: "Malware", value: 25, color: "#10B981" },
-        { label: "Data Breach", value: 12, color: "#EC4899" },
-        { label: "Credential Theft", value: 11, color: "#A855F7" },
-        { label: "Other", value: 8, color: "#64748B" }
-    ];
+    const rawData = incidentTypes.length
+        ? incidentTypes.slice(0, 5).map((item, index) => ({
+            label: item._id?.type || item._id || "unspecified",
+            value: item.count || 0,
+            color: colors[index % colors.length],
+        }))
+        : [{ label: "No data", value: 1, color: "#64748B" }];
+
+    const total = rawData.reduce((sum, item) => sum + item.value, 0) || 1;
 
     const data = {
         labels: rawData.map(item => item.label),
@@ -57,7 +60,7 @@ export default function DashboardPieChart() {
 
             ctx.font = 'bold 16px sans-serif';
             ctx.fillStyle = '#FFFFFF'; 
-            ctx.fillText('100%', centerX, centerY + 12);
+            ctx.fillText(String(total), centerX, centerY + 12);
             
             ctx.restore();
         }
@@ -72,7 +75,7 @@ export default function DashboardPieChart() {
             },
             tooltip: {
                 callbacks: {
-                    label: (context) => ` ${context.label}: ${context.raw}%`
+                    label: (context) => ` ${context.label}: ${context.raw}`
                 }
             }
         },
@@ -117,7 +120,7 @@ export default function DashboardPieChart() {
                                 <span style={{ color: '#E5E7EB', fontSize: '15px' }}>{item.label}:</span>
                             </div>
                             
-                            <span style={{ color: '#9CA3AF', fontSize: '15px', fontWeight: '500' }}>{item.value}%</span>
+                            <span style={{ color: '#9CA3AF', fontSize: '15px', fontWeight: '500' }}>{item.value}</span>
                         </div>
                     ))}
                 </div>

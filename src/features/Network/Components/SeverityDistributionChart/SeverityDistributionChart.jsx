@@ -13,12 +13,20 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function SeverityDistributionChart({ severityCounts = {} }) {
-  const counts = [
-    severityCounts.critical ?? 0,
-    severityCounts.high ?? 0,
-    severityCounts.medium ?? 0,
-    severityCounts.low ?? 0,
-  ];
+  const counts = useMemo(
+    () => [
+      severityCounts.critical ?? 0,
+      severityCounts.high ?? 0,
+      severityCounts.medium ?? 0,
+      severityCounts.low ?? 0,
+    ],
+    [
+      severityCounts.critical,
+      severityCounts.high,
+      severityCounts.medium,
+      severityCounts.low,
+    ]
+  );
   const maxCount = Math.max(...counts, 1);
 
   const data = useMemo(

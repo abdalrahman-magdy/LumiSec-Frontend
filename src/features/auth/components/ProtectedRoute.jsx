@@ -25,7 +25,7 @@ export default function ProtectedRoute({ children }) {
     const returnUrl = encodeURIComponent(
       location.pathname + location.search
     );
-    return <Navigate to={`/?returnUrl=${returnUrl}`} replace />;
+    return <Navigate to={`/login?returnUrl=${returnUrl}`} replace />;
   }
 
   return children;
@@ -43,7 +43,7 @@ export function PublicOnlyRoute({ children }) {
     const params = new URLSearchParams(location.search);
     const returnUrl = params.get("returnUrl");
     const destination =
-      returnUrl && returnUrl.startsWith("/") ? returnUrl : "/GRC";
+      returnUrl && returnUrl.startsWith("/") ? returnUrl : "/welcome";
     return <Navigate to={destination} replace />;
   }
 

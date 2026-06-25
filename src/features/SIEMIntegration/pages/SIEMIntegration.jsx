@@ -1,9 +1,7 @@
 import React from 'react'
 import logo from "../../../assets/LumiSecLogoB 1@3x.png"
-import icon from"../../../assets/Vector.png"
 import  "./SIEMIntegration.css"
 import "../../../styles/global.css"
-import { Link } from 'react-router-dom'
 
 export default function SIEMIntegration() {
     return <>

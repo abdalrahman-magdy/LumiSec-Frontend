@@ -1,12 +1,18 @@
 /* ================= CONTAINER ================= */
 .actions-container {
     width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
   }
   
   /* ================= HEADER ================= */
   .section-header {
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
+  }
+
+  .section-header figure {
+    margin: 0;
   }
   
   .section-header .icon {
@@ -16,19 +22,19 @@
   
   /* ================= BUTTONS ================= */
   .actions-buttons {
-    padding: 0 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
   
   /* base button */
   .action-btn {
-    padding: 10px 12px;
-    border-radius: 12px;
+    min-height: 58px;
+    padding: 12px 16px;
+    border-radius: 8px;
     border: 1px solid transparent;
-    font-weight: 500;
-    gap: 10px;
+    font-weight: 700;
+    gap: 14px;
     transition: 0.2s;
   }
   
@@ -36,6 +42,10 @@
   .action-btn img {
     width: 20px;
     margin-right: 10px;
+  }
+
+  .action-btn:disabled {
+    opacity: 1;
   }
   
   /* isolate */
@@ -62,7 +72,9 @@
   /* ================= CARDS ================= */
   .action-card {
     background-color: #414B61;
-    margin-bottom: 10px;
+    min-height: 88px;
+    margin-bottom: 12px;
+    border-radius: 8px !important;
   }
   
   /* ================= ALERT ROW ================= */
@@ -78,11 +90,15 @@
   .high-action {
     background-color: #f852492f;
     color: #FF1F1F;
+    min-width: 78px;
+    text-align: center;
   }
   
   .medium-action {
     background-color: #F8A30656;
     color: #BF8300;
+    min-width: 92px;
+    text-align: center;
   }
   
   /* ================= TABLET ================= */

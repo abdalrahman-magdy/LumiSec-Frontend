@@ -2,13 +2,14 @@ import React from "react";
 
 import "./playbook.css"
 
-export default function PlaybookCard() {
+export default function PlaybookCard({ onOpen }) {
   return (
     <div className="dashboard-card playbook side-card">
 
       <h6 className="card-title-small">
         LIVE PLAYBOOK STREAM
       </h6>
+      <button className="side-card-action" type="button" onClick={onOpen}>Open Stream</button>
 
       <div className="mb-3">
 

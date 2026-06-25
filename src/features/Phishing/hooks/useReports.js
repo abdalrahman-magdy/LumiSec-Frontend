@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { downloadReport, generateReport, getReport, getReportStats } from "../services/phishingApi";
 
-export default function useReports(reportId) {
+export default function useReports(reportId, campaignId) {
   const [stats, setStats] = useState(null);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,15 +11,16 @@ export default function useReports(reportId) {
   const loadStats = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getReportStats();
+      const res = await getReportStats(campaignId);
       setStats(res.data);
       setIsMock(res.isMock);
+      setError(null);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [campaignId]);
 
   const loadReport = useCallback(async (id) => {
     if (!id) return;

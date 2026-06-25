@@ -1,0 +1,673 @@
+.soar-platform {
+  min-height: 100vh;
+  overflow: hidden;
+  background: #1d1d1f;
+  color: #f4f6fb;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.soar-platform button,
+.soar-platform input,
+.soar-platform select {
+  font: inherit;
+}
+
+.soar-platform-header {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 20px;
+  border-bottom: 1px solid #3381ff;
+  background: #242424;
+}
+
+.soar-title,
+.soar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.soar-title strong {
+  color: #7f61ff;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.soar-title span,
+.soar-actions i {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.soar-title p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 18px;
+}
+
+.soar-playbook-name-input {
+  width: min(320px, 36vw);
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #ffffff;
+  background: #2b2b2f;
+}
+
+.soar-saved-count {
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+}
+
+.soar-top-button,
+.soar-icon-button,
+.soar-back-button {
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #ffffff;
+  background: #2b2b2f;
+  cursor: pointer;
+}
+
+.soar-top-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.soar-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: rgba(255, 255, 255, 0.84);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.soar-back-button:hover {
+  border-color: rgba(126, 88, 255, 0.56);
+  background: rgba(126, 88, 255, 0.18);
+}
+
+.soar-top-button svg,
+.soar-icon-button svg,
+.soar-back-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.soar-top-button.warning {
+  border-color: transparent;
+  background: #ff8a3d;
+}
+
+.soar-top-button.active,
+.test-node-button {
+  border-color: transparent;
+  background: linear-gradient(90deg, #7d54e8, #4d94ff);
+}
+
+.soar-icon-button {
+  width: 40px;
+  display: grid;
+  place-items: center;
+}
+
+.soar-avatar {
+  width: 42px;
+  height: 42px;
+  border: 2px solid #7e58ff;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.soar-workspace {
+  height: calc(100vh - 54px);
+  display: grid;
+  grid-template-columns: 216px minmax(760px, 1fr) 306px;
+}
+
+.soar-node-sidebar {
+  overflow-y: auto;
+  padding: 16px 14px;
+  background:
+    linear-gradient(rgba(14, 27, 47, 0.88), rgba(14, 27, 47, 0.91)),
+    repeating-linear-gradient(30deg, transparent 0 34px, rgba(114, 136, 176, 0.08) 35px 37px),
+    repeating-linear-gradient(150deg, transparent 0 34px, rgba(114, 136, 176, 0.08) 35px 37px);
+}
+
+.palette-dashboard,
+.palette-node {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 12px;
+  color: #eef4ff;
+  background: linear-gradient(90deg, #7957dc, #4d91ff);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.palette-dashboard {
+  margin-bottom: 20px;
+}
+
+.palette-dashboard svg,
+.palette-node svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.palette-dashboard svg {
+  color: #ddd9ff;
+  fill: currentColor;
+}
+
+.node-group {
+  margin-top: 18px;
+}
+
+.node-group h2 {
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: #8f7dff;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.saved-playbook-select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(83, 155, 255, 0.32);
+  border-radius: 7px;
+  padding: 0 10px;
+  color: #eef4ff;
+  background: #242b3a;
+}
+
+.node-palette-list {
+  display: grid;
+  gap: 10px;
+}
+
+.palette-node {
+  font-size: 14px;
+}
+
+.palette-node .sigma-icon {
+  color: #1619ff;
+}
+
+.palette-node.firewall svg {
+  color: #ff2118;
+  fill: currentColor;
+}
+
+.palette-node.search svg {
+  color: #ffffff;
+  background: #f0bd00;
+  border-radius: 5px;
+  padding: 3px;
+}
+
+.palette-node.slack svg {
+  color: #ffffff;
+  background: #f51f72;
+  border-radius: 5px;
+  padding: 4px;
+}
+
+.palette-node.send svg {
+  color: #ffffff;
+  background: #179be8;
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.palette-node.logic svg {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 5px;
+  padding: 4px;
+}
+
+.soar-canvas {
+  position: relative;
+  overflow: auto;
+  background-color: #1f1f20;
+  background-image:
+    linear-gradient(30deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(30deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%, rgba(255, 255, 255, 0.08)),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%, rgba(255, 255, 255, 0.08));
+  background-position: 0 0, 0 0, 33px 57px, 33px 57px;
+  background-size: 66px 114px;
+}
+
+.canvas-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1220px;
+  min-height: 980px;
+  transform-origin: 0 0;
+  transition: transform 180ms ease;
+}
+
+.canvas-toolbar {
+  position: absolute;
+  top: 42px;
+  right: 66px;
+  z-index: 3;
+  display: flex;
+  gap: 12px;
+}
+
+.zoom-menu {
+  position: absolute;
+  top: 42px;
+  right: 52px;
+  z-index: 5;
+  display: grid;
+  width: 90px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  background: #2b2b2f;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+}
+
+.zoom-menu button {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  border: 0;
+  border-radius: 0;
+  justify-content: flex-start;
+  padding: 0 12px;
+  background: transparent;
+}
+
+.zoom-menu button:hover,
+.zoom-menu button.selected {
+  background: rgba(126, 88, 255, 0.28);
+}
+
+.canvas-toolbar button {
+  min-width: 40px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  color: #f6f7fb;
+  background: rgba(42, 42, 44, 0.82);
+}
+
+.canvas-toolbar svg {
+  width: 16px;
+  height: 16px;
+}
+
+.canvas-toolbar button:first-child svg {
+  color: #6e5fff;
+}
+
+.canvas-toolbar .zoom-select {
+  width: 90px;
+  justify-content: space-around;
+  font-size: 12px;
+}
+
+.canvas-node {
+  position: absolute;
+  z-index: 2;
+  width: 270px;
+  min-height: 82px;
+  padding: 14px 16px;
+  border: 2px solid;
+  border-radius: 8px;
+  background: #2b2b2d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.canvas-node:hover,
+.canvas-node.selected {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.16),
+    0 18px 34px rgba(0, 0, 0, 0.26);
+}
+
+.canvas-node.condition {
+  border-color: #ff7a13;
+}
+
+.canvas-node.lookup {
+  border-color: #21adff;
+}
+
+.canvas-node.block {
+  border-color: #ff3535;
+}
+
+.canvas-node.log,
+.canvas-node.slack {
+  border-color: #16b95a;
+}
+
+.canvas-node h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 6px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.canvas-node h2 svg {
+  width: 22px;
+  height: 22px;
+}
+
+.canvas-node.condition h2 svg {
+  color: #ff8a12;
+}
+
+.canvas-node.lookup .sigma-icon {
+  color: #1529ff;
+}
+
+.canvas-node.block h2 svg {
+  color: #ff241b;
+  fill: currentColor;
+}
+
+.canvas-node.log h2 svg,
+.canvas-node.slack h2 svg {
+  color: #ffffff;
+}
+
+.canvas-node p,
+.canvas-node small {
+  display: block;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 14px;
+}
+
+.canvas-node small {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.53);
+  font-size: 13px;
+}
+
+.canvas-node.lookup small {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #d3a6f2;
+}
+
+.node-port {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.input-port {
+  left: -6px;
+}
+
+.output-port {
+  right: -6px;
+}
+
+.condition .node-port {
+  background: #ff9b38;
+}
+
+.lookup .node-port {
+  background: #20c7ff;
+}
+
+.block .node-port {
+  background: #ff3535;
+}
+
+.log .node-port,
+.slack .node-port {
+  background: #15c946;
+}
+
+.branch-label {
+  position: absolute;
+  top: 50%;
+  font-size: 11px;
+  transform: translateY(-50%);
+}
+
+.true-label {
+  left: -38px;
+  color: #00af3a;
+}
+
+.false-label {
+  right: -42px;
+  color: #ff0000;
+}
+
+.canvas-ghost-node {
+  position: absolute;
+  left: 690px;
+  top: 540px;
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.builder-status {
+  position: absolute;
+  left: 24px;
+  bottom: 18px;
+  z-index: 4;
+  max-width: calc(100% - 48px);
+  border: 1px solid rgba(82, 147, 255, 0.32);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(27, 32, 44, 0.88);
+  font-size: 13px;
+}
+
+.config-panel {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+  padding: 20px 14px;
+  background: #1b202c;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.config-heading {
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.config-heading h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.config-heading p {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 14px;
+}
+
+.config-panel label {
+  display: grid;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 13px;
+}
+
+.config-panel input,
+.config-panel select,
+.template-input {
+  width: 100%;
+  min-height: 39px;
+  border: 1px solid #5293ff;
+  border-radius: 7px;
+  color: #ffffff;
+  background: #242229;
+  padding: 0 12px;
+}
+
+.template-input {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.template-input span {
+  flex: 0 0 auto;
+  color: #ffffff;
+}
+
+.template-input code {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  padding: 3px 7px;
+  color: #d3a6f2;
+  background: rgba(255, 255, 255, 0.11);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-input svg {
+  width: 14px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.config-checks {
+  display: grid;
+  gap: 10px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.config-checks h3 {
+  margin: 0 0 2px;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.config-checks label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+}
+
+.config-checks input {
+  width: 13px;
+  height: 13px;
+  min-height: 13px;
+  accent-color: #1686ff;
+}
+
+.config-panel select {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #2c2c2d;
+}
+
+.test-node-button {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 0;
+  border-radius: 7px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.soar-top-button.is-live {
+  box-shadow: 0 0 0 2px rgba(31, 216, 108, 0.28);
+}
+
+.test-node-button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.sigma-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+@media (max-width: 1180px) {
+  .soar-platform {
+    overflow: auto;
+  }
+
+  .soar-platform-header {
+    min-width: 1180px;
+  }
+
+  .soar-workspace {
+    width: 1180px;
+  }
+}

@@ -53,7 +53,7 @@ function handleResponseError(error) {
     const returnUrl = encodeURIComponent(
       window.location.pathname + window.location.search
     );
-    window.location.href = `/?session=expired&returnUrl=${returnUrl}`;
+    window.location.href = `/login?session=expired&returnUrl=${returnUrl}`;
     return Promise.reject(
       new LuminetApiError("Session expired. Redirecting to login...", { status })
     );
@@ -87,23 +87,21 @@ function handleResponseError(error) {
   return Promise.reject(new LuminetApiError(message, { status }));
 }
 
-/** Authenticated client for all LumiNet endpoints except public live-stream reads */
+/** Authenticated client for LumiNet endpoints */
 export const luminetClient = axios.create({
   baseURL: `${API_BASE_URL}${LUMINET_BASE}`,
   headers: { "Content-Type": "application/json" },
   timeout: 60000,
 });
 
-/** Read-only stream client — never attaches JWT */
-export const luminetStreamClient = axios.create({
-  baseURL: `${API_BASE_URL}${LUMINET_BASE}`,
-  headers: { "Content-Type": "application/json" },
-  timeout: 30000,
-});
-
 luminetClient.interceptors.request.use(attachAuth);
 luminetClient.interceptors.response.use((r) => r, handleResponseError);
-luminetStreamClient.interceptors.response.use((r) => r, handleResponseError);
+
+function unwrapBackendBody(body) {
+  return body?.success && Object.prototype.hasOwnProperty.call(body, "data")
+    ? body.data
+    : body;
+}
 
 async function withRetry(requestFn, { retries = 2, delayMs = 1000, label } = {}) {
   let lastError;
@@ -130,7 +128,7 @@ export async function discoverNetwork(payload) {
     () => luminetClient.post("/network/discover", payload),
     { retries: 2, label: "discoverNetwork" }
   );
-  return normalizeDiscoveryResult(response.data);
+  return normalizeDiscoveryResult(unwrapBackendBody(response.data));
 }
 
 export async function scanPorts(payload) {
@@ -139,17 +137,17 @@ export async function scanPorts(payload) {
     () => luminetClient.post("/network/scan-ports", body),
     { retries: 2, label: "scanPorts" }
   );
-  return normalizePortScanResult(response.data);
+  return normalizePortScanResult(unwrapBackendBody(response.data));
 }
 
 export async function getMisconfigurations(params) {
   const response = await luminetClient.get("/network/misconfigurations", { params });
-  return normalizeMisconfigurationList(response.data);
+  return normalizeMisconfigurationList(unwrapBackendBody(response.data));
 }
 
 export async function getFlowMetrics(params) {
   const response = await luminetClient.get("/network/flow-metrics", { params });
-  return normalizeFlowMetrics(response.data);
+  return normalizeFlowMetrics(unwrapBackendBody(response.data));
 }
 
 // ─── ASSETS ─────────────────────────────────────────────────────
@@ -159,58 +157,59 @@ export async function getAssetInventory(params) {
     () => luminetClient.get("/assets/inventory", { params }),
     { retries: 2, label: "getAssetInventory" }
   );
-  return normalizeAssetList(response.data);
+  return normalizeAssetList(unwrapBackendBody(response.data));
 }
 
 export async function getAssetDetails(mac) {
   const encoded = encodeURIComponent(mac);
   const response = await luminetClient.get(`/assets/details/${encoded}`);
-  return normalizeAsset(response.data?.asset ?? response.data ?? {});
+  const body = unwrapBackendBody(response.data);
+  return normalizeAsset(body?.asset ?? body ?? {});
 }
 
 export async function getAssetContext(ip) {
   const encoded = encodeURIComponent(ip);
   const response = await luminetClient.get(`/assets/context/${encoded}`);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 // ─── SNIFFING ───────────────────────────────────────────────────
 
 export async function startSniffing(payload) {
   const response = await luminetClient.post("/sniffing/start", payload);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 export async function getLiveStream(params) {
-  const response = await luminetStreamClient.get("/sniffing/live-stream", { params });
-  return normalizeLiveStream(response.data);
+  const response = await luminetClient.get("/sniffing/live-stream", { params });
+  return normalizeLiveStream(unwrapBackendBody(response.data));
 }
 
 // ─── INTEGRATIONS ───────────────────────────────────────────────
 
 export async function sendToGrc(payload) {
   const response = await luminetClient.post("/integrations/grc/finding", payload);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 export async function sendToSoar(payload) {
   const response = await luminetClient.post("/integrations/soar/incident", payload);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 export async function sendToUctc(payload) {
   const response = await luminetClient.post("/integrations/uctc/detection-gap", payload);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 export async function sendToSiem(payload) {
   const response = await luminetClient.post("/integrations/siem/event", payload);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 export async function sendToOpenCti(payload) {
   const response = await luminetClient.post("/integrations/opencti/enrichment", payload);
-  return response.data;
+  return unwrapBackendBody(response.data);
 }
 
 export function buildIntegrationPayload(source, item = {}) {

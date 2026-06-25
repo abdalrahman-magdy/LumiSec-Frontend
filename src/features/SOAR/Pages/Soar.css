@@ -1,3 +1,13 @@
+.soar-main-layout {
+    padding-top: 0 !important;
+    background: #10141f;
+}
+
+.soar-main-layout .content {
+    min-height: 100vh;
+    background: #10141f;
+}
+
 .calender-icon{
     position: absolute;
     left: 40px;

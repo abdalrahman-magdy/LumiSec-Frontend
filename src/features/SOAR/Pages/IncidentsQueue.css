@@ -1,3 +1,112 @@
+.incident-queue-page {
+  min-height: 100vh;
+  background: #10141f;
+  color: white;
+  animation: incidentPageIn 420ms ease both;
+}
+
+.incident-queue-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 20px;
+  border-bottom: 2px solid #553399;
+  background: #1b202d;
+  animation: incidentTopbarIn 360ms ease both;
+}
+
+.incident-queue-header-left,
+.incident-queue-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.incident-queue-logo {
+  width: 56px;
+  min-width: 56px;
+}
+
+.incident-queue-logo img {
+  display: block;
+  width: 100%;
+}
+
+.incident-queue-title {
+  min-width: 0;
+}
+
+.incident-queue-title h1 {
+  margin: 0;
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: clamp(1.35rem, 2vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.incident-queue-header-right {
+  flex: 0 0 auto;
+}
+
+.incident-queue-divider {
+  width: 1px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.incident-queue-user p {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.incident-queue-user span {
+  display: block;
+  color: #ffffff;
+  font-size: 0.88rem;
+}
+
+.incident-queue-profile {
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border: 2px solid #539BFF;
+  border-radius: 50%;
+}
+
+.incident-queue-profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.incident-profile-button {
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.incident-profile-button:hover .incident-queue-profile {
+  box-shadow: 0 0 0 4px rgba(83, 155, 255, 0.22);
+  transform: translateY(-1px) scale(1.03);
+}
+
+.incident-queue-content {
+  padding-top: 22px !important;
+}
+
 .dashboard-container {
   min-height: 100vh;
   color: white;
@@ -14,6 +123,14 @@
   padding: 16px;
 
   box-shadow: 0 0 15px rgba(0,0,0,.3);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  animation: incidentCardIn 460ms ease both;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(83, 155, 255, 0.38);
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.34), 0 0 28px rgba(83, 155, 255, 0.12);
 }
 
 .stats-card {
@@ -38,4 +155,402 @@
   background-color: #ffffff;
   height: 40px;
   width: 1px;
+}
+
+.incident-status-toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 1000;
+  border: 1px solid rgba(83, 155, 255, 0.35);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #ffffff;
+  background: rgba(27, 32, 45, 0.94);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+  animation: incidentToastIn 300ms ease both;
+}
+
+.incident-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(2, 6, 14, 0.68);
+  backdrop-filter: blur(7px);
+  animation: incidentBackdropIn 180ms ease both;
+}
+
+.incident-drawer {
+  width: min(430px, 100%);
+  height: 100vh;
+  overflow: auto;
+  border-left: 1px solid rgba(83, 155, 255, 0.32);
+  background: #171d2b;
+  box-shadow: -24px 0 70px rgba(0, 0, 0, 0.42);
+  animation: incidentDrawerIn 220ms ease both;
+}
+
+@keyframes incidentDrawerIn {
+  from {
+    opacity: 0;
+    transform: translateX(44px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.incident-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px;
+  border-bottom: 1px solid #2A3042;
+}
+
+.incident-drawer-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.incident-drawer-header p {
+  margin: 5px 0 0;
+  color: #9DA3B0;
+}
+
+.incident-drawer-header button,
+.incident-primary-action,
+.side-card-action {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  cursor: pointer;
+}
+
+.incident-drawer-body {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+
+.incident-drawer-body section {
+  padding: 16px;
+  border: 1px solid #2A3042;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.incident-drawer-body h3 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.incident-drawer-body p {
+  margin: 0;
+  color: #C9D1D9;
+}
+
+.incident-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.incident-tag-list span {
+  border: 1px solid #58A6FF;
+  border-radius: 7px;
+  padding: 3px 8px;
+  color: #ffffff;
+  background: #58A6FF2f;
+}
+
+.incident-primary-action,
+.side-card-action {
+  border-color: transparent;
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+}
+
+.incident-drawer-header button:hover,
+.incident-primary-action:hover,
+.side-card-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(83, 155, 255, 0.22);
+}
+
+.side-card-action {
+  margin: 6px 0 14px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+.incident-profile-panel {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px;
+}
+
+.incident-profile-panel img {
+  width: 86px;
+  height: 86px;
+  border: 2px solid #539BFF;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.incident-profile-panel h3 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.incident-profile-panel p {
+  margin: 0;
+  color: #9DA3B0;
+}
+
+.incident-profile-panel dl {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.incident-profile-panel dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #2A3042;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.incident-profile-panel dt {
+  color: #9DA3B0;
+}
+
+.incident-profile-panel dd {
+  margin: 0;
+  color: #ffffff;
+}
+
+.incident-workflow-panel {
+  border-color: rgba(127, 86, 217, 0.4) !important;
+  background: linear-gradient(135deg, rgba(127, 86, 217, 0.14), rgba(83, 155, 255, 0.08)) !important;
+  animation: incidentPanelRise 260ms ease both;
+}
+
+.incident-workflow-title,
+.incident-live-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8aa8ff;
+}
+
+.incident-workflow-title h3,
+.incident-live-heading h3 {
+  margin: 0;
+}
+
+.incident-workflow-steps,
+.incident-event-list {
+  display: grid;
+  gap: 10px;
+}
+
+.incident-workflow-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #2A3042;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.incident-workflow-step strong {
+  color: #9DA3B0;
+}
+
+.incident-workflow-step.complete strong {
+  color: #3FB950;
+}
+
+.incident-workflow-step.running strong {
+  color: #58A6FF;
+}
+
+.incident-workflow-step.running {
+  position: relative;
+  overflow: hidden;
+}
+
+.incident-workflow-step.running::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(83, 155, 255, 0.12), transparent);
+  animation: incidentSweep 1.8s ease-in-out infinite;
+}
+
+.incident-live-card {
+  border-color: rgba(83, 155, 255, 0.42) !important;
+}
+
+.incident-progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #2A3042;
+}
+
+.incident-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+  animation: incidentProgressPulse 1.4s ease-in-out infinite;
+}
+
+.incident-event-list p {
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px solid #2A3042;
+  border-radius: 10px;
+  color: #C9D1D9;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.incident-event-list strong {
+  color: #ffffff;
+}
+
+.incident-risk-score {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 22px;
+  border: 1px solid rgba(248, 81, 73, 0.35);
+  border-radius: 14px;
+  color: #F85149;
+  background: rgba(248, 81, 73, 0.07);
+}
+
+.incident-risk-score strong {
+  color: #F85149;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.incident-risk-score span {
+  color: #ffffff;
+}
+
+@keyframes incidentPageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes incidentTopbarIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes incidentCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes incidentToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes incidentBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes incidentPanelRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes incidentSweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes incidentProgressPulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+}
+
+@media (max-width: 992px) {
+  .incident-queue-topbar {
+    flex-wrap: wrap;
+  }
+
+  .incident-queue-title h1 {
+    white-space: normal;
+  }
+
+  .incident-queue-header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }

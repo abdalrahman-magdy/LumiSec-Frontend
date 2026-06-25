@@ -1,18 +1,12 @@
 import React, { useState } from 'react'
-import { NavLink, Outlet , Link } from 'react-router-dom'
-import logo from "../../../assets/LumiSecLogoB 1@3x.png"
+import { NavLink, Outlet } from 'react-router-dom'
 
 
 
 import "./Soar.css"
 import {
-    CircleCheck,
-    ClipboardCheck,
-    FileChartColumnIncreasing,
-    Settings,
-    Menu,
+    Code2,
     TriangleAlert,
-    SettingsIcon,
 } from 'lucide-react'
 
 export default function Soar() {
@@ -27,7 +21,7 @@ export default function Soar() {
 
 
 
-            <div className='main-layout'>
+            <div className='main-layout soar-main-layout'>
                 
                 <aside className='d-none d-lg-block'>
                 
@@ -72,10 +66,10 @@ export function SidebarLinks({ collapsed }) {
     return (
         <nav className='d-flex flex-column gap-2'>
 
-            <NavItem to="/Soar" icon={<i class="fa-solid fa-chart-pie"></i>} text="Analytics & Reports" collapsed={collapsed} />
-            <NavItem to="/Soar/IncidentsQueue" icon={<i class="fa-solid fa-screwdriver-wrench"></i>} text="Incidents Queue" collapsed={collapsed} />
-            <NavItem to="/Soar/IncidentManagement" icon={<TriangleAlert size={22} />} text="Incident Management" collapsed={collapsed} />
-            <NavItem to="/Soar/settings" icon={<SettingsIcon size={22} />} text="Settings" collapsed={collapsed} />
+            <NavItem to="/SOAR" icon={<i class="fa-solid fa-chart-pie"></i>} text="Analytics & Reports" collapsed={collapsed} />
+            <NavItem to="/SOAR/playbook" icon={<Code2 size={22} />} text="Playbook Builder" collapsed={collapsed} />
+            <NavItem to="/SOAR/IncidentsQueue" icon={<i class="fa-solid fa-screwdriver-wrench"></i>} text="Incidents Queue" collapsed={collapsed} />
+            <NavItem to="/SOAR/IncidentManagement" icon={<TriangleAlert size={22} />} text="Incident Management" collapsed={collapsed} />
 
 
         </nav>
@@ -87,7 +81,7 @@ function NavItem({ to, icon, text, collapsed }) {
     return (
         <NavLink
             to={to}
-            end={to === "/Soar"}
+            end={to === "/SOAR"}
             className={({ isActive }) =>
                 isActive ? "sidebar-link active" : "sidebar-link"
             }

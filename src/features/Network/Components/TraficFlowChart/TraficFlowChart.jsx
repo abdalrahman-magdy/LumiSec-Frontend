@@ -24,7 +24,7 @@ ChartJS.register(
 );
 
 export default function TrafficFlowChart({ metrics }) {
-  const timeline = metrics?.timeline ?? {};
+  const timeline = useMemo(() => metrics?.timeline ?? {}, [metrics?.timeline]);
 
   const data = useMemo(() => {
     const labels = timeline.labels ?? ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"];
@@ -55,7 +55,7 @@ export default function TrafficFlowChart({ metrics }) {
         },
       ],
     };
-  }, [metrics, timeline]);
+  }, [metrics?.avgPps, timeline]);
 
   const maxVal = Math.max(...(timeline.current ?? [12000]), ...(timeline.threshold ?? [8000]), 12000);
 

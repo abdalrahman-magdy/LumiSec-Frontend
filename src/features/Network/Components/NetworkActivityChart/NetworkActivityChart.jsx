@@ -61,7 +61,7 @@ export default function NetworkActivityChart({ flowMetrics }) {
         },
       ],
     };
-  }, [flowMetrics, timeline, activity]);
+  }, [timeline, activity]);
 
   const options = {
     responsive: true,
