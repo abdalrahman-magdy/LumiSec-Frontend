@@ -23,55 +23,6 @@ export default function Network() {
 
     return (
         <>
-
-            {/* ================= HEADER ================= */}
-            <header className='topbar'>
-
-            <div className='left-section'>
-
-                {/* Mobile open sidebar */}
-                <button
-                    className='btn text-white border-0 p-0 d-lg-none'
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#mobileSidebar"
-                >
-                    <Menu size={28} />
-                </button>
-
-                {/* Desktop collapse */}
-                <button
-                    className='btn text-white border-0 p-0 d-none d-lg-block'
-                    onClick={() => setCollapsed(!collapsed)}
-                >
-                    <Menu size={28} />
-                </button>
-
-                <Link to="/GRC" className="text-decoration-none">
-                    <h1 className="logo m-0">LumiSec</h1>
-                </Link>
-
-
-                <div className='d-flex align-items-center mt-2 ms-5'>
-                    <h3 className='text-white mb-0 me-3'>{title}</h3>
-                    <p className='system rounded-5 mb-0 ps-4'>System Active</p>
-                </div>
-
-            </div>
-
-
-                {/* RIGHT */}
-                <div className='right-section'>
-
-                    <div className='d-flex justify-content-between align-items-center'>
-
-                        <p className='threate mb-0 rounded-3 me-3'><Shield size={25} className='pe-1' style={{color: "#06B6D4"}} />Threat Level: <span className='network-high fw-medium border-0'>High</span></p>
-                        <p className=' mb-0 date'>Saturday, June 6, 2026</p>
-
-                    </div>
-                </div>
-
-            </header>
-
             {/* ================= LAYOUT ================= */}
             <div className='main-layout'>
 
@@ -88,6 +39,53 @@ export default function Network() {
 
                 {/* CONTENT */}
                 <main className='content'>
+                    {/* ================= HEADER ================= */}
+                    <header className='topbar'>
+
+                    <div className='left-section'>
+
+                        {/* Mobile open sidebar */}
+                        <button
+                            className='btn text-white border-0 p-0 d-lg-none'
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#mobileSidebar"
+                        >
+                            <Menu size={28} />
+                        </button>
+
+                        {/* Desktop collapse */}
+                        <button
+                            className='btn text-white border-0 p-0 d-none d-lg-block'
+                            onClick={() => setCollapsed(!collapsed)}
+                        >
+                            <Menu size={28} />
+                        </button>
+
+                        <Link to="/Network" className="text-decoration-none">
+                            <h1 className="logo m-0">LumiSec</h1>
+                        </Link>
+
+
+                        <div className='d-flex align-items-center mt-2 ms-5'>
+                            <h3 className='text-white mb-0 me-3'>{title}</h3>
+                            <p className='system rounded-5 mb-0 ps-4'>System Active</p>
+                        </div>
+
+                    </div>
+
+
+                        {/* RIGHT */}
+                        <div className='right-section'>
+
+                            <div className='d-flex justify-content-between align-items-center'>
+
+                                <p className='threate mb-0 rounded-3 me-3'><Shield size={25} className='pe-1' style={{color: "#06B6D4"}} />Threat Level: <span className='network-high fw-medium border-0'>High</span></p>
+                                <p className=' mb-0 date'>Saturday, June 6, 2026</p>
+
+                            </div>
+                        </div>
+
+                    </header>
                     <Outlet context = {{title , setTitle}} />
                 </main>
 

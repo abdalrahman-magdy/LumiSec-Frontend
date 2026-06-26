@@ -1,6 +1,7 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import LandingPage from './features/landing/LandingPage';
 import WelcomePage from './features/welcome/WelcomePage';
+import WelcomeDashboard from './features/welcome/WelcomeDashboard';
 
 import Login from './features/auth/pages/Login';
 import { AuthProvider } from './features/auth/context/AuthContext';
@@ -46,71 +47,75 @@ import ReportViewer from './features/Phishing/Pages/Reports/ReportViewer';
 import ReportDownload from './features/Phishing/Pages/Reports/ReportDownload';
 import SIEMIntegration from './features/SIEMIntegration/pages/SIEMIntegration';
 
-const myRouter = createBrowserRouter([
+const myRouter = createBrowserRouter([
     { path: "/", element: <LandingPage /> },
-    { path: "/welcome", element: <ProtectedRoute><WelcomePage /></ProtectedRoute> },
-    { path: "/SOAR/playbook", element: <ProtectedRoute><SoarPlaybookBuilder /></ProtectedRoute> },
-
     { path: "/login", element: <Login /> },
-    { path: "/SIEMIntegration", element: <ProtectedRoute><SIEMIntegration /></ProtectedRoute> },
-    { path: "/GRC", element: <ProtectedRoute><GRC/></ProtectedRoute>,
-        children:[
-            { path: "", element:  <GRCDashboard/>},
-            { path: "/GRC/Audits", element:  <GRCAudits/>},
-            { path: "/GRC/Standards", element:  <GRCStandards/>},
-            { path: "/GRC/Remediation", element:  <GRCRemediation/>},
-            { path: "/GRC/Settings", element:  <GRCSettings/>},
-        ]
-    },
-    { path: "/SOAR", element: <ProtectedRoute><Soar/></ProtectedRoute>,
-        children:[
-            { path: "", element:  <SoarAnalytics/>},
-            { path: "/SOAR/Analytics", element:  <SoarAnalytics/>},
-            { path: "/SOAR/IncidentsQueue", element:  <IncidentQueue/>},
-            { path: "/SOAR/IncidentManagement", element:  <IncidentManagement/>},
-            { path: "/SOAR/IncidentManagement/:id", element:  <IncidentManagement/>},
-        ]
-    },
-
-    { path: "/Network", element: <ProtectedRoute><Network/></ProtectedRoute>,
-        children:[
-            { path: "", element:  <Dashboard/>},
-            { path: "/Network/NetworkDiscovery", element:  <NetworkDiscovery/>},
-            { path: "/Network/PortScanning", element:  <PortScanning/>},
-            { path: "/Network/PacketCapture", element:  <PacketCapture />},
-            { path: "/Network/packetCapture", element:  <PacketCapture />},
-            { path: "/Network/AssetInventory", element:  <AssetInventory />},
-            { path: "/Network/Misconfigurations", element:  <Misconfigurations />},
-            { path: "/Network/FlowMonitoring", element:  <FlowMonitoring />},
-        ]
-    },
-
-    { path: "/Phishing", element: <ProtectedRoute><Phishing/></ProtectedRoute>,
-        children:[
-            { path: "", element:  <Overview />},
-            { path: "/Phishing/Dashboard/Risks", element:  <Risks />},
-            { path: "/Phishing/Dashboard/Departments", element:  <Departments />},
-            { path: "/Phishing/Dashboard/Trends", element:  <Trends />},
-            { path: "/Phishing/Campaigns", element:  <CampaignList />},
-            { path: "/Phishing/Campaigns/create", element:  <CampaignCreate />},
-            { path: "/Phishing/Campaigns/:id/launch", element:  <CampaignLaunchConsole />},
-            { path: "/Phishing/Campaigns/:id", element:  <CampaignDetails />},
-            { path: "/Phishing/Templates", element:  <TemplatesList />},
-            { path: "/Phishing/Templates/:id/edit", element:  <TemplateEditor />},
-            { path: "/Phishing/LandingPages", element:  <LandingPagesList />},
-            { path: "/Phishing/LandingPages/:id/edit", element:  <LandingPageEditor />},
-            { path: "/Phishing/Recipients", element:  <RecipientsList />},
-            { path: "/Phishing/Recipients/import", element:  <ImportRecipients />},
-            { path: "/Phishing/Tracking/Logs", element:  <TrackingLogs />},
-            { path: "/Phishing/Tracking/Timeline", element:  <EventTimeline />},
-            { path: "/Phishing/Reports", element:  <ReportViewer />},
-            { path: "/Phishing/Reports/download/:id", element:  <ReportDownload />},
-            { path: "/Phishing/Settings", element:  <PhishingSettings />},
-            { path: "/Phishing/EmailTemplates", element:  <TemplatesList />},
-        ]
-    },
-
-])
+    { path: "/SIEMIntegration", element: <ProtectedRoute><SIEMIntegration /></ProtectedRoute> },
+    {
+        element: <ProtectedRoute><WelcomePage /></ProtectedRoute>,
+        children: [
+            { path: "/welcome", element: <WelcomeDashboard /> },
+            { path: "/GRC", element: <GRC/>,
+                children:[
+                    { path: "", element:  <GRCDashboard/>},
+                    { path: "/GRC/Audits", element:  <GRCAudits/>},
+                    { path: "/GRC/Standards", element:  <GRCStandards/>},
+                    { path: "/GRC/Remediation", element:  <GRCRemediation/>},
+                    { path: "/GRC/Settings", element:  <GRCSettings/>},
+                ]
+            },
+            { path: "/SOAR", element: <Soar/>,
+                children:[
+                    { path: "", element:  <SoarAnalytics/>},
+                    { path: "/SOAR/Analytics", element:  <SoarAnalytics/>},
+                    { path: "/SOAR/IncidentsQueue", element:  <IncidentQueue/>},
+                    { path: "/SOAR/IncidentManagement", element:  <IncidentManagement/>},
+                    { path: "/SOAR/IncidentManagement/:id", element:  <IncidentManagement/>},
+                    { path: "/SOAR/playbook", element: <SoarPlaybookBuilder /> },
+                ]
+            },
+
+            { path: "/Network", element: <Network/>,
+                children:[
+                    { path: "", element:  <Dashboard/>},
+                    { path: "/Network/NetworkDiscovery", element:  <NetworkDiscovery/>},
+                    { path: "/Network/PortScanning", element:  <PortScanning/>},
+                    { path: "/Network/PacketCapture", element:  <PacketCapture />},
+                    { path: "/Network/packetCapture", element:  <PacketCapture />},
+                    { path: "/Network/AssetInventory", element:  <AssetInventory />},
+                    { path: "/Network/Misconfigurations", element:  <Misconfigurations />},
+                    { path: "/Network/FlowMonitoring", element:  <FlowMonitoring />},
+                ]
+            },
+
+            { path: "/Phishing", element: <Phishing/>,
+                children:[
+                    { path: "", element:  <Overview />},
+                    { path: "/Phishing/Dashboard/Risks", element:  <Risks />},
+                    { path: "/Phishing/Dashboard/Departments", element:  <Departments />},
+                    { path: "/Phishing/Dashboard/Trends", element:  <Trends />},
+                    { path: "/Phishing/Campaigns", element:  <CampaignList />},
+                    { path: "/Phishing/Campaigns/create", element:  <CampaignCreate />},
+                    { path: "/Phishing/Campaigns/:id/launch", element:  <CampaignLaunchConsole />},
+                    { path: "/Phishing/Campaigns/:id", element:  <CampaignDetails />},
+                    { path: "/Phishing/Templates", element:  <TemplatesList />},
+                    { path: "/Phishing/Templates/:id/edit", element:  <TemplateEditor />},
+                    { path: "/Phishing/LandingPages", element:  <LandingPagesList />},
+                    { path: "/Phishing/LandingPages/:id/edit", element:  <LandingPageEditor />},
+                    { path: "/Phishing/Recipients", element:  <RecipientsList />},
+                    { path: "/Phishing/Recipients/import", element:  <ImportRecipients />},
+                    { path: "/Phishing/Tracking/Logs", element:  <TrackingLogs />},
+                    { path: "/Phishing/Tracking/Timeline", element:  <EventTimeline />},
+                    { path: "/Phishing/Reports", element:  <ReportViewer />},
+                    { path: "/Phishing/Reports/download/:id", element:  <ReportDownload />},
+                    { path: "/Phishing/Settings", element:  <PhishingSettings />},
+                    { path: "/Phishing/EmailTemplates", element:  <TemplatesList />},
+                ]
+            },
+        ],
+    },
+
+])
 
 function App() {
 return <>

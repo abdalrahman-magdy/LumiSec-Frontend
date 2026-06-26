@@ -143,6 +143,29 @@
 .welcome-content {
   position: relative;
   z-index: 1;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.welcome-content > .main-layout,
+.welcome-content .main-layout {
+  padding-top: 0;
+}
+
+.welcome-content .topbar {
+  position: sticky;
+  top: 0;
+  left: auto;
+  width: 100%;
+}
+
+.welcome-content .sidebar {
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.welcome-dashboard {
   width: min(100%, 1360px);
   display: grid;
   gap: 28px;
@@ -485,6 +508,10 @@
   }
 
   .welcome-content {
+    padding: 0;
+  }
+
+  .welcome-dashboard {
     padding: 42px 16px 28px;
   }
 
