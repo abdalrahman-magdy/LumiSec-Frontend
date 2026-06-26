@@ -81,6 +81,10 @@ function normalizeOpenPortEntry(entry, index, scanMode = "CONNECT") {
 export function normalizeAsset(raw = {}, index = 0) {
   const riskScore = Number(raw.riskScore ?? raw.risk_score ?? raw.score ?? 0);
   const services = raw.services ?? raw.openPorts ?? raw.open_ports ?? [];
+  const openPortCount = Array.isArray(services)
+    ? services.length
+    : Number(raw.openPorts ?? raw.open_ports ?? 0);
+  const rawStatus = (raw.status ?? "unknown").toLowerCase();
   return {
     id: raw.id ?? raw.mac ?? raw.ip ?? `asset-${index}`,
     ip: raw.ip ?? raw.ipAddress ?? raw.ip_address ?? "—",
@@ -92,11 +96,12 @@ export function normalizeAsset(raw = {}, index = 0) {
       : typeof services === "string"
         ? services.split(",").map((s) => s.trim())
         : [],
-    status: (raw.status ?? "unknown").toLowerCase(),
+    status: rawStatus,
+    isOnline: rawStatus === "active" || rawStatus === "online",
     riskScore,
     riskLevel: normalizeSeverity(raw.riskLevel ?? raw.risk_level ?? riskLevelFromScore(riskScore)),
     category: raw.category ?? raw.type ?? "general",
-    openPorts: Number(raw.openPorts ?? raw.open_ports ?? 0),
+    openPorts: openPortCount,
     lastSeen: raw.lastSeen ?? raw.last_seen ?? null,
     vendor: raw.vendor ?? null,
     raw,
@@ -153,6 +158,49 @@ export function countBySeverity(items = []) {
 }
 
 export function normalizeFlowMetrics(payload = {}) {
+  const rows = Array.isArray(payload)
+    ? payload
+    : payload?.metrics ?? payload?.flows ?? payload?.data ?? payload?.items ?? null;
+  if (Array.isArray(rows)) {
+    const latest = rows[0] ?? {};
+    const anomalies = rows.filter((row) => row.isAnomaly || row.is_anomaly);
+    const labels = rows.map((row) => {
+      const observedAt = row.observedAt ?? row.observed_at ?? row.createdAt;
+      return observedAt ? new Date(observedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—";
+    }).reverse();
+
+    return {
+      currentPps: Number(latest.packetsPerSecond ?? latest.packets_per_second ?? 0),
+      avgPps: rows.length
+        ? Math.round(rows.reduce((sum, row) => sum + Number(row.packetsPerSecond ?? row.packets_per_second ?? 0), 0) / rows.length)
+        : 0,
+      peakPps: rows.reduce((max, row) => Math.max(max, Number(row.packetsPerSecond ?? row.packets_per_second ?? 0)), 0),
+      floodEvents: anomalies.length,
+      bandwidth: {
+        inboundMbps: Number(latest.bandwidthKbps ?? latest.bandwidth_kbps ?? 0) / 1024,
+        outboundMbps: 0,
+      },
+      timeline: {
+        labels,
+        baseline: rows.map((row) => Number(row.baselinePacketsPerSecond ?? row.baseline_packets_per_second ?? 0)).reverse(),
+        current: rows.map((row) => Number(row.packetsPerSecond ?? row.packets_per_second ?? 0)).reverse(),
+        threshold: rows.map((row) => Number(row.thresholdPacketsPerSecond ?? row.threshold_packets_per_second ?? 0)).reverse(),
+      },
+      anomalies: anomalies.map((a, i) => ({
+        id: a._id ?? a.id ?? `anomaly-${i}`,
+        type: "Flow anomaly",
+        severity: normalizeSeverity(a.severity ?? "high"),
+        pps: Number(a.packetsPerSecond ?? a.packets_per_second ?? 0),
+        source: a.sourceIp ?? a.source_ip ?? "—",
+        timestamp: a.observedAt ?? a.observed_at ?? "—",
+        isSpike: true,
+      })),
+      exfiltration: [],
+      activitySeries: null,
+      raw: rows,
+    };
+  }
+
   const data = payload.data ?? payload;
   const timeline = data.timeline ?? data.traffic ?? {};
   return {
@@ -259,8 +307,8 @@ export function normalizeLiveStream(payload = {}) {
       id: p.id ?? i + 1,
       timestamp: p.timestamp ?? p.time ?? p.ts ?? "—",
       protocol: (p.protocol ?? p.proto ?? "UNKNOWN").toUpperCase(),
-      src: p.src ?? p.source ?? `${p.srcIp ?? "?"}:${p.srcPort ?? "?"}`,
-      dst: p.dst ?? p.destination ?? `${p.dstIp ?? "?"}:${p.dstPort ?? "?"}`,
+      src: p.src ?? p.source ?? `${p.srcIp ?? p.src_ip ?? "?"}:${p.srcPort ?? p.src_port ?? "?"}`,
+      dst: p.dst ?? p.destination ?? `${p.dstIp ?? p.dst_ip ?? "?"}:${p.dstPort ?? p.dst_port ?? "?"}`,
       length: Number(p.length ?? p.len ?? p.size ?? 0),
       summary: p.summary ?? p.info ?? p.details ?? "",
     })),
@@ -276,7 +324,7 @@ export function normalizeLiveStream(payload = {}) {
 }
 
 export function buildDashboardSummary(assets = [], misconfigs = [], flow = {}) {
-  const online = assets.filter((a) => a.status === "online").length;
+  const online = assets.filter((a) => a.isOnline || a.status === "online").length;
   const openPorts = assets.reduce((sum, a) => sum + (a.openPorts || 0), 0);
   const openMisconfigs = misconfigs.filter((m) => m.status !== "fixed");
   const criticalThreats = openMisconfigs.filter((m) => m.severity === "critical").length;

@@ -8,11 +8,12 @@ import {
   normalizeMisconfigurationList,
   normalizePortScanResult,
 } from "../features/Network/utils/normalizers.js";
-import { clearAuth, getToken } from "../features/auth/utils/authStorage";
+import { getToken } from "../features/auth/utils/authStorage";
 import { buildNetworkScanPayload } from "../features/Network/utils/portScan";
+import { apiClient } from "./apiClient";
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:3000";
 
 const LUMINET_BASE = "/api/luminet";
 
@@ -49,13 +50,9 @@ function handleResponseError(error) {
   const status = error.response?.status ?? null;
 
   if (status === 401) {
-    clearAuth();
-    const returnUrl = encodeURIComponent(
-      window.location.pathname + window.location.search
-    );
-    window.location.href = `/login?session=expired&returnUrl=${returnUrl}`;
+    // Phase 1 keeps demo sessions testable; production 401 handling belongs in Phase 2.
     return Promise.reject(
-      new LuminetApiError("Session expired. Redirecting to login...", { status })
+      new LuminetApiError("Backend authentication is required for this request.", { status })
     );
   }
 
@@ -188,12 +185,12 @@ export async function getLiveStream(params) {
 // ─── INTEGRATIONS ───────────────────────────────────────────────
 
 export async function sendToGrc(payload) {
-  const response = await luminetClient.post("/integrations/grc/finding", payload);
+  const response = await apiClient.post("/api/grc/integrations/network/findings", payload);
   return unwrapBackendBody(response.data);
 }
 
 export async function sendToSoar(payload) {
-  const response = await luminetClient.post("/integrations/soar/incident", payload);
+  const response = await apiClient.post("/api/soar/incidents", payload);
   return unwrapBackendBody(response.data);
 }
 
@@ -203,12 +200,12 @@ export async function sendToUctc(payload) {
 }
 
 export async function sendToSiem(payload) {
-  const response = await luminetClient.post("/integrations/siem/event", payload);
+  const response = await apiClient.post("/api/grc/integrations/siem/alerts", payload);
   return unwrapBackendBody(response.data);
 }
 
 export async function sendToOpenCti(payload) {
-  const response = await luminetClient.post("/integrations/opencti/enrichment", payload);
+  const response = await apiClient.post("/api/grc/integrations/opencti/ioc", payload);
   return unwrapBackendBody(response.data);
 }
 
@@ -227,22 +224,20 @@ export function buildIntegrationPayload(source, item = {}) {
 
   return {
     grc: {
-      controlId: item.controlId ?? "NET-001",
-      finding: base.description || base.title,
-      risk: base.severity,
-      assignedTo: item.assignedTo ?? null,
-      dueDate: item.dueDate ?? null,
-      ...base,
+      title: base.title,
+      description: base.description || `Network finding detected on ${base.asset}`,
+      severity: base.severity,
+      asset: base.ip !== "—" ? base.ip : base.asset,
+      sourceId: item.id ?? item._id,
+      findingType: item.type ?? source,
+      tags: ["network", source].filter(Boolean),
     },
     soar: {
-      title: `[${String(base.severity).toUpperCase()}] ${base.title}`,
+      title: `[Network] ${base.title}`,
       severity: base.severity,
-      description: base.description,
-      entity: base.asset,
-      targetIp: base.ip,
-      mitre: item.mitre ?? [],
-      status: "open",
-      ...base,
+      description: base.description || `Network event detected on ${base.asset}`,
+      sourceIP: base.ip !== "—" ? base.ip : undefined,
+      affectedHost: base.asset,
     },
     uctc: {
       gapType: item.gapType ?? "detection_coverage",
@@ -252,19 +247,19 @@ export function buildIntegrationPayload(source, item = {}) {
       ...base,
     },
     siem: {
-      eventType: "network_security",
+      alertId: item.alertId ?? `luminet-${source}-${item.id ?? item._id ?? Date.now()}`,
+      ruleName: base.title,
       severity: base.severity,
-      message: base.description || base.title,
-      host: base.asset,
       sourceIp: base.ip,
-      ...base,
+      destinationIp: item.destinationIp ?? item.destination_ip,
+      indexName: "luminet",
     },
     opencti: {
-      iocType: item.iocType ?? "ipv4-addr",
-      value: base.ip,
-      labels: [base.severity, "luminet"],
+      iocType: item.iocType ?? "ip",
+      indicator: base.ip !== "—" ? base.ip : base.asset,
+      confidence: item.confidence ?? 3,
       description: base.description,
-      ...base,
+      title: base.title,
     },
   };
 }

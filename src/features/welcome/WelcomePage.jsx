@@ -5,9 +5,12 @@ import {
   Cloud,
   Code2,
   Database,
+  FileCheck2,
   Home,
   Lock,
   LogOut,
+  Mail,
+  Network,
   Shield,
   ShieldCheck,
   Wifi,
@@ -69,15 +72,23 @@ export default function WelcomePage() {
         <nav className="welcome-nav">
           <Link className="welcome-nav-link active" to="/welcome">
             <Home aria-hidden="true" />
-            <span>Welcome Page</span>
+            <span>Welcome</span>
           </Link>
-          <Link className="welcome-nav-link" to="/Network">
-            <Shield aria-hidden="true" />
-            <span>Security</span>
+          <Link className="welcome-nav-link" to="/Phishing">
+            <Mail aria-hidden="true" />
+            <span>Phishing</span>
+          </Link>
+          <Link className="welcome-nav-link" to="/GRC">
+            <FileCheck2 aria-hidden="true" />
+            <span>GRC</span>
           </Link>
           <Link className="welcome-nav-link" to="/SOAR">
-            <BarChart3 aria-hidden="true" />
-            <span>Analytics</span>
+            <Shield aria-hidden="true" />
+            <span>SOAR</span>
+          </Link>
+          <Link className="welcome-nav-link" to="/Network">
+            <Network aria-hidden="true" />
+            <span>Network</span>
           </Link>
         </nav>
 

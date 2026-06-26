@@ -1,8 +1,8 @@
 import axios from "axios";
-import { clearAuth, getToken } from "../features/auth/utils/authStorage";
+import { getToken } from "../features/auth/utils/authStorage";
 
 export const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:3000";
 
 export class ApiError extends Error {
   constructor(message, { status, data } = {}) {
@@ -34,9 +34,7 @@ apiClient.interceptors.response.use(
     const backendMessage =
       error.response?.data?.message || error.response?.data?.error;
 
-    if (status === 401) {
-      clearAuth();
-    }
+    // Phase 1 keeps demo sessions testable; production 401 handling belongs in Phase 2.
 
     return Promise.reject(
       new ApiError(backendMessage || error.message || "Request failed", {

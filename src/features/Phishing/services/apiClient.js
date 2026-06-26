@@ -1,9 +1,8 @@
-import axios from "axios";
-import { getToken } from "../../auth/utils/authStorage";
-import { clearAuth } from "../../auth/utils/authStorage";
-
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+import axios from "axios";
+import { getToken } from "../../auth/utils/authStorage";
+
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:3000";
 
 const PHISHING_BASE = "/api/phishing";
 
@@ -16,16 +15,12 @@ function attachAuth(config) {
 }
 
 function handleResponseError(error) {
-  const status = error.response?.status ?? null;
-
-  if (status === 401) {
-    clearAuth();
-    const returnUrl = encodeURIComponent(
-      window.location.pathname + window.location.search
-    );
-    window.location.href = `/login?session=expired&returnUrl=${returnUrl}`;
-    return Promise.reject(new Error("Session expired. Redirecting to login..."));
-  }
+  const status = error.response?.status ?? null;
+
+  if (status === 401) {
+    // Phase 1 keeps demo sessions testable; production 401 handling belongs in Phase 2.
+    return Promise.reject(new Error("Backend authentication is required for this request."));
+  }
 
   if (status === 429) {
     const retryAfter = error.response.headers?.["retry-after"] || "60";

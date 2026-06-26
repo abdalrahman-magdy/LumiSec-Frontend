@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import {
   getGrcDashboardCompliance,
   getGrcDashboardOverview,
+  getGrcDashboardRisks,
   getGrcDashboardTasks,
 } from "../services/grc.api";
 
 export default function useGrcDashboard() {
   const [overview, setOverview] = useState(null);
   const [compliance, setCompliance] = useState(null);
+  const [risks, setRisks] = useState(null);
   const [tasks, setTasks] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,14 +18,16 @@ export default function useGrcDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [overviewResult, complianceResult, tasksResult] = await Promise.all([
+      const [overviewResult, complianceResult, risksResult, tasksResult] = await Promise.all([
         getGrcDashboardOverview(),
         getGrcDashboardCompliance(),
+        getGrcDashboardRisks(),
         getGrcDashboardTasks(),
       ]);
 
       setOverview(overviewResult.data ?? null);
       setCompliance(complianceResult.data ?? null);
+      setRisks(risksResult.data ?? null);
       setTasks(tasksResult.data ?? null);
     } catch (err) {
       setError(err);
@@ -36,6 +40,6 @@ export default function useGrcDashboard() {
     load();
   }, [load]);
 
-  return { overview, compliance, tasks, loading, error, reload: load };
+  return { overview, compliance, risks, tasks, loading, error, reload: load };
 }
 

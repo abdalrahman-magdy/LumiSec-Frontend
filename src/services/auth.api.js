@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:3000";
 
 export class AuthApiError extends Error {
   constructor(message, { status, data } = {}) {
