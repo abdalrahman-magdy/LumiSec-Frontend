@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
 import "./Phishing.css";
-import profile from "../../../assets/prrofile.png";
 import {
   LayoutGrid,
   Mail,
@@ -14,12 +13,18 @@ import {
   Menu,
   Shield,
 } from "lucide-react";
-import { getPhishingRole, ROLES, setPhishingRole } from "../utils/roles";
+import { getPhishingRole, isDevRoleSwitcherEnabled, ROLES, setPhishingRole } from "../utils/roles";
+import { getUser } from "../../auth/utils/authStorage";
+import HeaderNotifications from "../../auth/components/HeaderNotifications";
+import HeaderUserMenu from "../../auth/components/HeaderUserMenu";
 
 export default function Phishing() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const devRoleSwitcher = isDevRoleSwitcherEnabled();
+  const authUser = getUser();
   const role = getPhishingRole();
+  const roleLabel = (authUser?.role ?? role ?? "user").replace(/_/g, " ");
 
   return (
     <>
@@ -41,29 +46,34 @@ export default function Phishing() {
               <Link to="/Phishing" className="text-decoration-none">
                 <h1 className="logo m-0">LumiSec</h1>
               </Link>
-              <span className="role-badge ms-2 d-none d-md-inline">{role.replace("_", " ")}</span>
+              <span className="role-badge ms-2 d-none d-md-inline text-capitalize">{roleLabel}</span>
             </div>
 
             <div className="right-section">
+              {devRoleSwitcher && (
               <select
                 className="form-select scanType-select border-0 me-2 d-none d-md-block"
                 style={{ width: 160 }}
-                value={role}
+                value={role || ROLES.MANAGER}
                 onChange={(e) => setPhishingRole(e.target.value)}
                 title="Dev role switcher"
               >
                 <option value={ROLES.MANAGER}>phishing_manager</option>
                 <option value={ROLES.OPERATOR}>phishing_operator</option>
                 <option value={ROLES.INTEGRATION}>integration_admin</option>
+                <option value={ROLES.SOC_ANALYST}>soc_analyst</option>
               </select>
+              )}
               <button type="button" className="btn add-btn text-white border-0" onClick={() => navigate("/Phishing/Campaigns/create")}>
                 <i className="fa-solid fa-plus me-2" />
                 New Campaign
               </button>
-              <i className="fa-regular fa-bell notification-icon fs-5" />
-              <figure className="profile-figure mb-0">
-                <img src={profile} alt="profile" />
-              </figure>
+              <HeaderNotifications
+                viewAllPath="/Phishing/Tracking/Timeline"
+                viewAllLabel="View live timeline"
+                emptyMessage="No new phishing alerts"
+              />
+              <HeaderUserMenu />
             </div>
           </header>
           <Outlet />

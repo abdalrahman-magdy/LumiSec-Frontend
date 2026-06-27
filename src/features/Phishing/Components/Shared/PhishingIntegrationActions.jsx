@@ -10,10 +10,10 @@ import { canUseIntegrations } from "../../utils/roles";
 import "./PhishingShared.css";
 
 const ACTIONS = [
-  { key: "grc", label: "Push to GRC", icon: "fa-clipboard-check", fn: (p) => pushToGrc(p.grc) },
-  { key: "soar", label: "Create Incident", icon: "fa-triangle-exclamation", fn: (p) => pushToSoar(p.soar) },
-  { key: "siem", label: "Send to SIEM", icon: "fa-server", fn: (p) => pushToSiem(p.siem) },
-  { key: "opencti", label: "Push IOC", icon: "fa-magnifying-glass", fn: (p) => pushToOpenCti(p.opencti) },
+  { key: "grc", label: "Push to GRC", icon: "fa-clipboard-check", className: "phishing-integration-grc", fn: (p) => pushToGrc(p.grc) },
+  { key: "soar", label: "Create Incident", icon: "fa-triangle-exclamation", className: "phishing-integration-soar", fn: (p) => pushToSoar(p.soar) },
+  { key: "siem", label: "Send to SIEM", icon: "fa-server", className: "phishing-integration-siem", fn: (p) => pushToSiem(p.siem) },
+  { key: "opencti", label: "Push IOC", icon: "fa-magnifying-glass", className: "phishing-integration-opencti", fn: (p) => pushToOpenCti(p.opencti) },
 ];
 
 export default function PhishingIntegrationActions({ campaign, compact = false }) {
@@ -44,12 +44,12 @@ export default function PhishingIntegrationActions({ campaign, compact = false }
           {feedback.text}
         </small>
       )}
-      <div className="integration-actions">
+      <div className="phishing-integration-actions">
         {ACTIONS.filter((action) => buildIntegrationPayload(campaign)[action.key]).map((action) => (
           <button
             key={action.key}
             type="button"
-            className="btn integration-btn"
+            className={`btn phishing-integration-btn ${action.className}`}
             disabled={loadingKey !== null}
             onClick={() => handleAction(action)}
           >

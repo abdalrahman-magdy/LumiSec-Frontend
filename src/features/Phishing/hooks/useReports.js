@@ -37,13 +37,7 @@ export default function useReports(reportId, campaignId) {
   }, []);
 
   const download = async (id) => {
-    const res = await downloadReport(id);
-    const url = window.URL.createObjectURL(new Blob([res.data]));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `phishing-report-${id}.pdf`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    await downloadReport(id);
   };
 
   useEffect(() => {

@@ -2,7 +2,6 @@ import React from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   FileCheck2,
-  Home,
   LogOut,
   Mail,
   Network,
@@ -18,16 +17,12 @@ export default function WelcomePage() {
   return (
     <main className="lumisec-shell">
       <aside className="welcome-sidebar" aria-label="LumiSec navigation">
-        <Link className="welcome-brand" to="/">
+        <Link className="welcome-brand" to="/welcome">
           <img src={logo} alt="LumiSec" />
           <span>LUMISEC</span>
         </Link>
 
         <nav className="welcome-nav">
-          <NavLink className="welcome-nav-link" to="/welcome">
-            <Home aria-hidden="true" />
-            <span>Welcome</span>
-          </NavLink>
           <NavLink className="welcome-nav-link" to="/Phishing">
             <Mail aria-hidden="true" />
             <span>Phishing</span>

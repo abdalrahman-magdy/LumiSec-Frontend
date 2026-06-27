@@ -138,3 +138,435 @@
   color: #A5B4FC;
   border: 1px solid #539BFF;
 }
+
+/* Secondary actions — purple outline (replaces gray integration-btn on forms/lists) */
+.phishing-outline-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #539BFF;
+  background: rgba(26, 34, 53, 0.6);
+  color: #C4B5FD;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.phishing-outline-btn:hover,
+.phishing-outline-btn:focus {
+  color: #fff !important;
+  background: linear-gradient(90deg, rgba(127, 86, 217, 0.35), rgba(83, 155, 255, 0.35));
+  border-color: #7F56D9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(127, 86, 217, 0.25);
+}
+
+.phishing-delete-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #F87171;
+  background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%);
+  color: #fff !important;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.phishing-delete-btn:hover,
+.phishing-delete-btn:focus {
+  color: #fff !important;
+  background: linear-gradient(180deg, #F87171 0%, #EF4444 100%);
+  border-color: #FCA5A5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45);
+}
+
+.phishing-delete-btn:focus-visible {
+  outline: 2px solid #F87171;
+  outline-offset: 2px;
+}
+
+.phishing-delete-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Full-width paired actions on template / landing cards */
+.phishing-card-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.phishing-card-actions .phishing-card-action-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 16px;
+  text-align: center;
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+}
+
+.phishing-card-actions > :only-child {
+  flex: 1 1 100%;
+}
+
+/* Solid red for modal confirm only */
+.phishing-delete-btn-solid {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(90deg, #DC2626, #EF4444);
+  color: #fff !important;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.phishing-delete-btn-solid:hover,
+.phishing-delete-btn-solid:focus {
+  color: #fff !important;
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.phishing-confirm-backdrop {
+  z-index: 3050;
+}
+
+.phishing-confirm-modal {
+  z-index: 3100;
+}
+
+.phishing-confirm-content {
+  background: #10141F;
+  border: 1px solid #2A3042;
+  border-radius: 12px;
+}
+
+/* Campaign status badges (list + details) — unique color per status */
+.campaign-status-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  border: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.campaign-status-draft {
+  color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.18);
+  border-color: #64748b;
+}
+
+.campaign-status-scheduled {
+  color: #a78bfa;
+  background-color: rgba(167, 139, 250, 0.18);
+  border-color: #8b5cf6;
+}
+
+.campaign-status-running {
+  color: #34d399;
+  background-color: rgba(52, 211, 153, 0.18);
+  border-color: #10b981;
+}
+
+.campaign-status-paused {
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.18);
+  border-color: #f59e0b;
+}
+
+.campaign-status-completed {
+  color: #60a5fa;
+  background-color: rgba(96, 165, 250, 0.18);
+  border-color: #3b82f6;
+}
+
+.campaign-status-cancelled {
+  color: #f87171;
+  background-color: rgba(248, 113, 113, 0.18);
+  border-color: #ef4444;
+}
+
+.phishing-table-actions {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.phishing-table-actions .btn {
+  white-space: nowrap;
+}
+
+/* Campaigns list — edge-to-edge full width */
+.phishing-campaigns-table-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.phishing-campaigns-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0;
+}
+
+.phishing-campaigns-table thead th {
+  background-color: #252b3a;
+  color: #9da3b0;
+  padding: 16px 10px;
+  text-align: start;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.phishing-campaigns-table thead th:nth-child(1) { width: 20%; }
+.phishing-campaigns-table thead th:nth-child(2) { width: 12%; }
+.phishing-campaigns-table thead th:nth-child(3) { width: 9%; }
+.phishing-campaigns-table thead th:nth-child(4) { width: 9%; }
+.phishing-campaigns-table thead th:nth-child(5) { width: 9%; }
+.phishing-campaigns-table thead th:nth-child(6) { width: 9%; }
+.phishing-campaigns-table thead th:nth-child(7) { width: 32%; }
+
+.phishing-campaigns-table tbody td {
+  border-top: 1px solid #2a3042;
+  padding: 14px 10px;
+  vertical-align: middle;
+}
+
+.phishing-campaigns-table th:nth-child(n + 3):nth-child(-n + 6),
+.phishing-campaigns-table td:nth-child(n + 3):nth-child(-n + 6) {
+  text-align: center;
+}
+
+.phishing-campaigns-table td:nth-child(2) {
+  text-align: center;
+}
+
+.phishing-campaigns-table td:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phishing-campaigns-table .phishing-table-actions-fill {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.phishing-campaigns-table .phishing-table-actions-fill .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* Campaign lifecycle & table actions — each action has its own color theme */
+.phishing-campaign-action {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  border: none;
+  color: #fff !important;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.phishing-campaign-action:hover,
+.phishing-campaign-action:focus {
+  color: #fff !important;
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.phishing-campaign-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.phishing-action-details {
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+  box-shadow: 0 2px 8px rgba(127, 86, 217, 0.3);
+}
+
+.phishing-action-details:hover,
+.phishing-action-details:focus {
+  box-shadow: 0 4px 14px rgba(127, 86, 217, 0.45);
+}
+
+.phishing-action-console {
+  background: linear-gradient(90deg, #059669, #10B981);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.phishing-action-console:hover,
+.phishing-action-console:focus {
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.5);
+}
+
+.phishing-action-launch {
+  background: linear-gradient(90deg, #059669, #10B981);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.phishing-action-launch:hover,
+.phishing-action-launch:focus {
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.5);
+}
+
+.phishing-action-pause {
+  background: linear-gradient(90deg, #D97706, #F59E0B);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.phishing-action-pause:hover,
+.phishing-action-pause:focus {
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5);
+}
+
+.phishing-action-resume {
+  background: linear-gradient(90deg, #2563EB, #38BDF8);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.phishing-action-resume:hover,
+.phishing-action-resume:focus {
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5);
+}
+
+.phishing-action-stop {
+  background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%);
+  border: 1px solid #F87171;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+
+.phishing-action-stop:hover,
+.phishing-action-stop:focus {
+  background: linear-gradient(180deg, #F87171 0%, #EF4444 100%);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45);
+}
+
+/* Nav link styled as primary button (not gray outline) */
+.phishing-list-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+  color: #fff !important;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.phishing-list-btn:hover,
+.phishing-list-btn:focus {
+  color: #fff !important;
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(127, 86, 217, 0.35);
+}
+
+.phishing-list-btn.small {
+  font-size: 11px;
+  padding: 4px 12px;
+}
+
+/* Integration push buttons (GRC, SOAR, SIEM, OpenCTI) */
+.phishing-integration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.phishing-integration-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  color: #fff !important;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.phishing-integration-btn:hover,
+.phishing-integration-btn:focus {
+  color: #fff !important;
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.phishing-integration-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.phishing-integration-grc {
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+  box-shadow: 0 2px 8px rgba(127, 86, 217, 0.35);
+}
+
+.phishing-integration-grc:hover,
+.phishing-integration-grc:focus {
+  box-shadow: 0 4px 14px rgba(127, 86, 217, 0.45);
+}
+
+.phishing-integration-soar {
+  background: linear-gradient(90deg, #DC2626, #EF4444);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+
+.phishing-integration-soar:hover,
+.phishing-integration-soar:focus {
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45);
+}
+
+.phishing-integration-siem {
+  background: linear-gradient(90deg, #0891B2, #06B6D4);
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.35);
+}
+
+.phishing-integration-siem:hover,
+.phishing-integration-siem:focus {
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45);
+}
+
+.phishing-integration-opencti {
+  background: linear-gradient(90deg, #D97706, #F59E0B);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.phishing-integration-opencti:hover,
+.phishing-integration-opencti:focus {
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+}

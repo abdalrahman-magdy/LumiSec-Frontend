@@ -4,52 +4,52 @@ import WelcomePage from './features/welcome/WelcomePage';
 import WelcomeDashboard from './features/welcome/WelcomeDashboard';
 
 import Login from './features/auth/pages/Login';
-import { AuthProvider } from './features/auth/context/AuthContext';
-import ProtectedRoute from './features/auth/components/ProtectedRoute';
-import GRC from './features/GRC/pages/GRC';
-import GRCDashboard from './features/GRC/pages/GRCDashboard';
-import GRCAudits from './features/GRC/pages/GRCAudits';
-import GRCStandards from './features/GRC/pages/GRCStandards';
-import GRCRemediation from './features/GRC/pages/GRCRemediation';
-import GRCSettings from './features/GRC/pages/GRCSettings';
-import IncidentQueue from './features/SOAR/Pages/IncidentQueue';
-import Soar from './features/SOAR/Pages/Soar';
-import SoarAnalytics from './features/SOAR/Pages/SoarAnalytics';
+import { AuthProvider } from './features/auth/context/AuthContext';
+import ProtectedRoute, { PublicOnlyRoute } from './features/auth/components/ProtectedRoute';
+import GRC from './features/GRC/pages/GRC';
+import GRCDashboard from './features/GRC/pages/GRCDashboard';
+import GRCAudits from './features/GRC/pages/GRCAudits';
+import GRCStandards from './features/GRC/pages/GRCStandards';
+import GRCRemediation from './features/GRC/pages/GRCRemediation';
+import GRCSettings from './features/GRC/pages/GRCSettings';
+import IncidentQueue from './features/SOAR/Pages/IncidentQueue';
+import Soar from './features/SOAR/Pages/Soar';
+import SoarAnalytics from './features/SOAR/Pages/SoarAnalytics';
 import IncidentManagement from './features/SOAR/Pages/IncidentManagement';
 import SoarPlaybookBuilder from './features/SOAR/Pages/SoarPlaybookBuilder';
-import Network from './features/Network/Pages/Network';
-import Dashboard from './features/Network/Pages/Dashboard';
-import NetworkDiscovery from './features/Network/Pages/NetworkDiscovery';
-import PortScanning from './features/Network/Pages/PortScanning';
-import PacketCapture from './features/Network/Pages/PacketCapture';
-import AssetInventory from './features/Network/Pages/AssetInventory';
-import Misconfigurations from './features/Network/Pages/Misconfigurations';
-import FlowMonitoring from './features/Network/Pages/FlowMonitoring';
-import Phishing from './features/Phishing/Pages/Phishing';
-import PhishingSettings from './features/Phishing/Pages/PhishingSettings';
-import Overview from './features/Phishing/Pages/Dashboard/Overview';
-import Risks from './features/Phishing/Pages/Dashboard/Risks';
-import Departments from './features/Phishing/Pages/Dashboard/Departments';
-import Trends from './features/Phishing/Pages/Dashboard/Trends';
-import CampaignList from './features/Phishing/Pages/Campaigns/CampaignList';
-import CampaignDetails from './features/Phishing/Pages/Campaigns/CampaignDetails';
-import CampaignCreate from './features/Phishing/Pages/Campaigns/CampaignCreate';
-import CampaignLaunchConsole from './features/Phishing/Pages/Campaigns/CampaignLaunchConsole';
-import TemplatesList from './features/Phishing/Pages/Templates/TemplatesList';
-import TemplateEditor from './features/Phishing/Pages/Templates/TemplateEditor';
-import LandingPagesList from './features/Phishing/Pages/LandingPages/LandingPagesList';
-import LandingPageEditor from './features/Phishing/Pages/LandingPages/LandingPageEditor';
-import RecipientsList from './features/Phishing/Pages/Recipients/RecipientsList';
-import ImportRecipients from './features/Phishing/Pages/Recipients/ImportRecipients';
-import TrackingLogs from './features/Phishing/Pages/Tracking/TrackingLogs';
-import EventTimeline from './features/Phishing/Pages/Tracking/EventTimeline';
-import ReportViewer from './features/Phishing/Pages/Reports/ReportViewer';
-import ReportDownload from './features/Phishing/Pages/Reports/ReportDownload';
-import SIEMIntegration from './features/SIEMIntegration/pages/SIEMIntegration';
-
+import Network from './features/Network/Pages/Network';
+import Dashboard from './features/Network/Pages/Dashboard';
+import NetworkDiscovery from './features/Network/Pages/NetworkDiscovery';
+import PortScanning from './features/Network/Pages/PortScanning';
+import PacketCapture from './features/Network/Pages/PacketCapture';
+import AssetInventory from './features/Network/Pages/AssetInventory';
+import Misconfigurations from './features/Network/Pages/Misconfigurations';
+import FlowMonitoring from './features/Network/Pages/FlowMonitoring';
+import Phishing from './features/Phishing/Pages/Phishing';
+import PhishingSettings from './features/Phishing/Pages/PhishingSettings';
+import Overview from './features/Phishing/Pages/Dashboard/Overview';
+import Risks from './features/Phishing/Pages/Dashboard/Risks';
+import Departments from './features/Phishing/Pages/Dashboard/Departments';
+import Trends from './features/Phishing/Pages/Dashboard/Trends';
+import CampaignList from './features/Phishing/Pages/Campaigns/CampaignList';
+import CampaignDetails from './features/Phishing/Pages/Campaigns/CampaignDetails';
+import CampaignCreate from './features/Phishing/Pages/Campaigns/CampaignCreate';
+import CampaignLaunchConsole from './features/Phishing/Pages/Campaigns/CampaignLaunchConsole';
+import TemplatesList from './features/Phishing/Pages/Templates/TemplatesList';
+import TemplateEditor from './features/Phishing/Pages/Templates/TemplateEditor';
+import LandingPagesList from './features/Phishing/Pages/LandingPages/LandingPagesList';
+import LandingPageEditor from './features/Phishing/Pages/LandingPages/LandingPageEditor';
+import RecipientsList from './features/Phishing/Pages/Recipients/RecipientsList';
+import ImportRecipients from './features/Phishing/Pages/Recipients/ImportRecipients';
+import TrackingLogs from './features/Phishing/Pages/Tracking/TrackingLogs';
+import EventTimeline from './features/Phishing/Pages/Tracking/EventTimeline';
+import ReportViewer from './features/Phishing/Pages/Reports/ReportViewer';
+import ReportDownload from './features/Phishing/Pages/Reports/ReportDownload';
+import SIEMIntegration from './features/SIEMIntegration/pages/SIEMIntegration';
+
 const myRouter = createBrowserRouter([
     { path: "/", element: <LandingPage /> },
-    { path: "/login", element: <Login /> },
+    { path: "/login", element: <PublicOnlyRoute><Login /></PublicOnlyRoute> },
     { path: "/SIEMIntegration", element: <ProtectedRoute><SIEMIntegration /></ProtectedRoute> },
     {
         element: <ProtectedRoute><WelcomePage /></ProtectedRoute>,
@@ -116,13 +116,13 @@ const myRouter = createBrowserRouter([
     },
 
 ])
-
-function App() {
-return <>
-    <AuthProvider>
-      <RouterProvider router={myRouter} />
-    </AuthProvider>
-    </>
-}
-
-export default App;
+
+function App() {
+return <>
+    <AuthProvider>
+      <RouterProvider router={myRouter} />
+    </AuthProvider>
+    </>
+}
+
+export default App;

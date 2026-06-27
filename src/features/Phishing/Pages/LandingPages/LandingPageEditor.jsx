@@ -11,7 +11,7 @@ export default function LandingPageEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = id === "new";
-  const { page, loading, createLandingPage, updateLandingPage } = useLandingPages(isNew ? null : id);
+  const { page, loading, error: loadError, isMock, createLandingPage, updateLandingPage } = useLandingPages(isNew ? null : id);
   const [form, setForm] = useState({ name: "", title: "", redirectUrl: "", htmlContent: "" });
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -33,13 +33,11 @@ export default function LandingPageEditor() {
     setSaving(true);
     try {
       if (isNew) {
-        const res = await createLandingPage(form);
-        const nextId = res.data?._id ?? res.data?.id ?? res.data?.page?._id ?? res.data?.page?.id;
-        if (!nextId) throw new Error("Landing page created but no id was returned.");
-        navigate(`/Phishing/LandingPages/${nextId}/edit`);
+        await createLandingPage(form);
       } else {
         await updateLandingPage(id, form);
       }
+      navigate("/Phishing/LandingPages");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -54,16 +52,53 @@ export default function LandingPageEditor() {
       <div className="phishing-soc-page">
         <div className="d-flex justify-content-between mb-3">
           <h5 className="text-white">{isNew ? "Create Landing Page" : "Edit Landing Page"}</h5>
-          <Link to="/Phishing/LandingPages" className="btn integration-btn">Back</Link>
+          <Link to="/Phishing/LandingPages" className="btn phishing-outline-btn">Back</Link>
         </div>
-        <PhishingAlert type="danger" message={error} />
+        <PhishingAlert type="danger" message={error || loadError} isMock={isMock} />
+
         <form onSubmit={handleSave} className="dashboard-card p-3">
-          <div className="mb-3"><label className="text-secondary">Name</label><input className="form-control header-search-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-          <div className="mb-3"><label className="text-secondary">Title</label><input className="form-control header-search-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
-          <div className="mb-3"><label className="text-secondary">Redirect URL</label><input className="form-control header-search-input" value={form.redirectUrl} onChange={(e) => setForm({ ...form, redirectUrl: e.target.value })} placeholder="https://example.com/after-training" /></div>
-          <div className="mb-3"><label className="text-secondary">HTML Content</label><textarea className="form-control header-search-input" rows={14} value={form.htmlContent} onChange={(e) => setForm({ ...form, htmlContent: e.target.value })} required /></div>
+          <div className="mb-3">
+            <label className="text-secondary">Name</label>
+            <input
+              className="form-control header-search-input"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+              minLength={2}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="text-secondary">Page Title</label>
+            <input
+              className="form-control header-search-input"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label className="text-secondary">Redirect URL (optional)</label>
+            <input
+              className="form-control header-search-input"
+              type="url"
+              value={form.redirectUrl}
+              onChange={(e) => setForm({ ...form, redirectUrl: e.target.value })}
+              placeholder="https://example.com/after-training"
+            />
+            <small className="text-secondary">Where users go after submitting the simulated form.</small>
+          </div>
+          <div className="mb-3">
+            <label className="text-secondary">HTML Content</label>
+            <textarea
+              className="form-control header-search-input"
+              rows={14}
+              value={form.htmlContent}
+              onChange={(e) => setForm({ ...form, htmlContent: e.target.value })}
+              required
+            />
+          </div>
           <button type="submit" className="btn add-btn text-white border-0" disabled={saving}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? "Saving..." : "Save Page"}
           </button>
         </form>
       </div>

@@ -128,7 +128,12 @@
   height: 42px;
   border: 2px solid #7e58ff;
   border-radius: 999px;
-  object-fit: cover;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #10141f;
+  color: #7e58ff;
+  font-size: 1rem;
 }
 
 .soar-workspace {

@@ -35,8 +35,9 @@ export default function useRecipients() {
   });
 
   const importCsv = async (file, campaignId) => {
-    await importRecipientsCsv(file, campaignId);
+    const res = await importRecipientsCsv(file, campaignId);
     await load();
+    return res;
   };
 
   return {

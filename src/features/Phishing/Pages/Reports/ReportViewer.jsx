@@ -58,7 +58,10 @@ export default function ReportViewer() {
               {generating ? "Generating..." : "Generate Report"}
             </button>
             {reportId && (
-              <button type="button" className="btn integration-btn" onClick={() => download(selectedCampaignId)}>Download</button>
+              <button type="button" className="btn phishing-integration-btn phishing-integration-opencti" onClick={() => download(selectedCampaignId)}>
+                <i className="fa-solid fa-download me-1" aria-hidden />
+                Download
+              </button>
             )}
           </div>
         </div>

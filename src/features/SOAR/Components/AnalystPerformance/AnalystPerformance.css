@@ -21,6 +21,20 @@ table.AnalystPerformanceTabel td{
     font-size: 0.8rem;
 }
 
+.analyst-avatar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #539bff;
+    background: #10141f;
+    color: #539bff;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
 .AnalystPerformanceTabel-view-all{
     border: 0;
     padding: 0;

@@ -11,7 +11,7 @@ export default function TemplateEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = id === "new";
-  const { template, loading, createTemplate, updateTemplate } = useTemplates(isNew ? null : id);
+  const { template, loading, error: loadError, isMock, createTemplate, updateTemplate } = useTemplates(isNew ? null : id);
   const [form, setForm] = useState({
     name: "",
     subject: "",
@@ -30,7 +30,7 @@ export default function TemplateEditor() {
         subject: template.subject ?? "",
         htmlBody: template.raw?.htmlBody ?? template.body ?? "",
         textBody: template.raw?.textBody ?? "",
-        category: template.category ?? "credential",
+        category: template.category ?? "general",
         language: template.raw?.language ?? "en",
       });
     }
@@ -42,13 +42,11 @@ export default function TemplateEditor() {
     setError(null);
     try {
       if (isNew) {
-        const res = await createTemplate(form);
-        const nextId = res.data?._id ?? res.data?.id ?? res.data?.template?._id ?? res.data?.template?.id;
-        if (!nextId) throw new Error("Template created but no id was returned.");
-        navigate(`/Phishing/Templates/${nextId}/edit`);
+        await createTemplate(form);
       } else {
         await updateTemplate(id, form);
       }
+      navigate("/Phishing/Templates");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -63,14 +61,14 @@ export default function TemplateEditor() {
       <div className="phishing-soc-page">
         <div className="d-flex justify-content-between mb-3">
           <h5 className="text-white">{isNew ? "Create Template" : "Edit Template"}</h5>
-          <Link to="/Phishing/Templates" className="btn integration-btn">Back</Link>
+          <Link to="/Phishing/Templates" className="btn phishing-outline-btn">Back</Link>
         </div>
-        <PhishingAlert type="danger" message={error} />
+        <PhishingAlert type="danger" message={error || loadError} isMock={isMock} />
 
         <form onSubmit={handleSave} className="dashboard-card p-3">
           <div className="mb-3">
             <label className="text-secondary">Name</label>
-            <input className="form-control header-search-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            <input className="form-control header-search-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required minLength={2} />
           </div>
           <div className="mb-3">
             <label className="text-secondary">Subject</label>
@@ -79,6 +77,7 @@ export default function TemplateEditor() {
           <div className="mb-3">
             <label className="text-secondary">Category</label>
             <select className="form-select scanType-select border-0" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+              <option value="general">General</option>
               <option value="credential">Credential</option>
               <option value="finance">Finance</option>
               <option value="delivery">Delivery</option>
@@ -90,10 +89,13 @@ export default function TemplateEditor() {
           </div>
           <div className="mb-3">
             <label className="text-secondary">HTML Body</label>
+            <p className="text-secondary small mb-1">
+              Optional placeholders: {"{{firstName}}"}, {"{{email}}"}, {"{{landing_url}}"} (auto-added if omitted)
+            </p>
             <textarea className="form-control header-search-input" rows={12} value={form.htmlBody} onChange={(e) => setForm({ ...form, htmlBody: e.target.value })} required />
           </div>
           <div className="mb-3">
-            <label className="text-secondary">Text Body</label>
+            <label className="text-secondary">Plain-text Body (optional)</label>
             <textarea className="form-control header-search-input" rows={5} value={form.textBody} onChange={(e) => setForm({ ...form, textBody: e.target.value })} />
           </div>
           <button type="submit" className="btn add-btn text-white border-0" disabled={saving}>

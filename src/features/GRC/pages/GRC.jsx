@@ -5,6 +5,7 @@ import { NavLink, Outlet , Link } from 'react-router-dom'
 
 import "./GRC.css"
 import HeaderUserMenu from "../../auth/components/HeaderUserMenu";
+import HeaderNotifications from "../../auth/components/HeaderNotifications";
 
 import {
     CircleCheck,
@@ -81,7 +82,11 @@ export default function GRC() {
                         {/* RIGHT */}
                         <div className='right-section'>
 
-                            <i className="fa-regular fa-bell notification-icon fs-5"></i>
+                            <HeaderNotifications
+                                viewAllPath="/GRC/Remediation"
+                                viewAllLabel="View remediation tasks"
+                                emptyMessage="No new task notifications"
+                            />
 
                             <HeaderUserMenu />
 

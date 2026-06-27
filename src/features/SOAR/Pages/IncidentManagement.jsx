@@ -5,7 +5,6 @@ import InvesigaionTimeline from '../Components/InvesigaionTimeline/InvesigaionTi
 import Actions from '../Components/Actions/Actions'
 import { Menu } from 'lucide-react'
 import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
-import profile from "../../../assets/prrofile.png"
 import returnImg from "../../../assets/Return.png"
 import logo from "../../../assets/LumiSecLogoB 1@3x.png"
 import useIncidentManagement from '../Hooks/useIncidentManagement'
@@ -161,7 +160,9 @@ export default function IncidentManagement() {
         </div>
 
         <figure className='profile-figure incident-management-profile mb-0'>
-          <img src={profile} alt="profile" />
+          <span className="soar-user-avatar-icon" aria-hidden="true">
+            <i className="fa-solid fa-user" />
+          </span>
         </figure>
       </header>
 

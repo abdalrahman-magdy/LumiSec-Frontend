@@ -40,7 +40,7 @@ export function useDashboardRisks() {
     setLoading(true);
     try {
       const res = await getDashboardRisks();
-      setData(Array.isArray(res.data) ? res.data : res.data?.risks ?? []);
+      setData(Array.isArray(res.data) ? res.data : []);
       setIsMock(res.isMock);
     } catch (err) {
       setError(err.message);

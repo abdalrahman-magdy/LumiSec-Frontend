@@ -2,6 +2,11 @@ import phishingClient, { phishingTrackClient } from "./apiClient";
 import { apiClient } from "../../../services/apiClient";
 import {
   normalizeCampaign,
+  normalizeDashboardDepartment,
+  normalizeDashboardOverview,
+  normalizeDashboardRisks,
+  normalizeDashboardTrends,
+  normalizeImportResult,
   normalizeLandingPage,
   normalizeList,
   normalizeRecipient,
@@ -84,19 +89,14 @@ function toLandingPagePayload(payload = {}) {
 }
 
 function toCampaignPayload(payload = {}) {
-  const selectedTemplate = MOCK_TEMPLATES.find((template) => template.id === payload.templateId || template._id === payload.templateId);
-  const selectedLandingPage = MOCK_LANDING_PAGES.find((page) => page.id === payload.landingPageId || page._id === payload.landingPageId);
   return compactPayload({
-    name: payload.name,
+    name: cleanText(payload.name),
     description: payload.description,
-    template: payload.template || {
-      subject: selectedTemplate?.subject || "LumiSec Security Awareness",
-      senderName: selectedTemplate?.senderName || "LumiSec Security Team",
-      senderEmail: selectedTemplate?.senderEmail || "security@lumisec.local",
-      htmlBody: selectedTemplate?.htmlBody || selectedTemplate?.body || "<p>Please review this security awareness message.</p>",
-    },
-    landingPageUrl: payload.landingPageUrl || selectedLandingPage?.url || selectedLandingPage?.redirectUrl,
+    templateId: payload.templateId,
+    landingPageId: payload.landingPageId,
+    launchDate: payload.launchDate,
     trackingDomain: payload.trackingDomain,
+    status: payload.status,
   });
 }
 
@@ -109,7 +109,7 @@ function normalizeQueue(stats = {}) {
     total,
     pending: Math.max(total - sent - failed, 0),
     failed,
-    status: stats.status ?? "active",
+    status: stats.status ?? "draft",
     logs: [],
     raw: stats,
   };
@@ -118,16 +118,28 @@ function normalizeQueue(stats = {}) {
 // ─── DASHBOARD ───────────────────────────────────────────────────
 
 export const getDashboardOverview = () =>
-  withMock(() => phishingClient.get("/dashboard/overview"), MOCK_OVERVIEW, "overview");
+  withMock(() => phishingClient.get("/dashboard/overview"), MOCK_OVERVIEW, "overview").then((r) => ({
+    ...r,
+    data: normalizeDashboardOverview(r.data),
+  }));
 
 export const getDashboardRisks = () =>
-  withMock(() => phishingClient.get("/dashboard/risks"), MOCK_RISKS, "risks");
+  withMock(() => phishingClient.get("/dashboard/risks"), MOCK_RISKS, "risks").then((r) => ({
+    ...r,
+    data: normalizeDashboardRisks(r.data),
+  }));
 
 export const getDashboardDepartments = () =>
-  withMock(() => phishingClient.get("/dashboard/departments"), MOCK_DEPARTMENTS, "departments");
+  withMock(() => phishingClient.get("/dashboard/departments"), MOCK_DEPARTMENTS, "departments").then((r) => ({
+    ...r,
+    data: (Array.isArray(r.data) ? r.data : []).map(normalizeDashboardDepartment),
+  }));
 
-export const getDashboardTrends = () =>
-  withMock(() => phishingClient.get("/dashboard/trends"), MOCK_TRENDS, "trends");
+export const getDashboardTrends = (params) =>
+  withMock(() => phishingClient.get("/dashboard/trends", { params }), MOCK_TRENDS, "trends").then((r) => ({
+    ...r,
+    data: normalizeDashboardTrends(r.data),
+  }));
 
 // ─── TEMPLATES ───────────────────────────────────────────────────
 
@@ -144,9 +156,15 @@ export const getTemplate = (id) =>
     "getTemplate"
   ).then((r) => ({ ...r, data: normalizeTemplate(r.data?.template ?? r.data) }));
 
-export const createTemplate = (payload) => mutate(() => phishingClient.post("/templates", toTemplatePayload(payload)));
-export const updateTemplate = (id, payload) => mutate(() => phishingClient.patch(`/templates/${id}`, toTemplatePayload(payload)));
-export const deleteTemplate = (id) => mutate(() => phishingClient.delete(`/templates/${id}`));
+export const createTemplate = (payload) =>
+  mutate(() => phishingClient.post("/templates", toTemplatePayload(payload)), null, "createTemplate")
+    .then((r) => ({ ...r, data: normalizeTemplate(r.data) }));
+
+export const updateTemplate = (id, payload) =>
+  mutate(() => phishingClient.patch(`/templates/${id}`, toTemplatePayload(payload)), null, "updateTemplate")
+    .then((r) => ({ ...r, data: normalizeTemplate(r.data) }));
+
+export const deleteTemplate = (id) => mutate(() => phishingClient.delete(`/templates/${id}`), null, "deleteTemplate");
 
 // ─── LANDING PAGES ───────────────────────────────────────────────
 
@@ -163,9 +181,15 @@ export const getLandingPage = (id) =>
     "getLandingPage"
   ).then((r) => ({ ...r, data: normalizeLandingPage(r.data?.page ?? r.data) }));
 
-export const createLandingPage = (payload) => mutate(() => phishingClient.post("/landing-pages", toLandingPagePayload(payload)));
-export const updateLandingPage = (id, payload) => mutate(() => phishingClient.patch(`/landing-pages/${id}`, toLandingPagePayload(payload)));
-export const deleteLandingPage = (id) => mutate(() => phishingClient.delete(`/landing-pages/${id}`));
+export const createLandingPage = (payload) =>
+  mutate(() => phishingClient.post("/landing-pages", toLandingPagePayload(payload)), null, "createLandingPage")
+    .then((r) => ({ ...r, data: normalizeLandingPage(r.data) }));
+
+export const updateLandingPage = (id, payload) =>
+  mutate(() => phishingClient.patch(`/landing-pages/${id}`, toLandingPagePayload(payload)), null, "updateLandingPage")
+    .then((r) => ({ ...r, data: normalizeLandingPage(r.data) }));
+
+export const deleteLandingPage = (id) => mutate(() => phishingClient.delete(`/landing-pages/${id}`), null, "deleteLandingPage");
 
 // ─── RECIPIENTS ──────────────────────────────────────────────────
 
@@ -173,6 +197,7 @@ export const listRecipients = (params) =>
   withMock(() => phishingClient.get("/recipients", { params }), MOCK_RECIPIENTS, "recipients").then((r) => ({
     ...r,
     data: normalizeList(r.data).map(normalizeRecipient),
+    total: r.data?.total ?? r.total ?? normalizeList(r.data).length,
   }));
 
 export const getRecipient = (id) =>
@@ -183,98 +208,173 @@ export const getRecipient = (id) =>
   ).then((r) => ({ ...r, data: normalizeRecipient(r.data) }));
 
 export const updateRecipient = (id, payload) => mutate(() => phishingClient.patch(`/recipients/${id}`, payload));
-export const deleteRecipient = (id) => mutate(() => phishingClient.delete(`/recipients/${id}`));
+export const deleteRecipient = (id) => mutate(() => phishingClient.delete(`/recipients/${id}`), null, "deleteRecipient");
 
-function parseRecipientsCsv(csv = "") {
-  return csv
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(1)
-    .map((line) => {
-      const [email, fullName, department, jobTitle, manager] = line.split(",").map((cell) => cell?.trim());
-      return { email, fullName, department, jobTitle, manager };
-    })
-    .filter((recipient) => recipient.email);
-}
-
-export const importRecipientsCsv = async (file) => {
+export const importRecipientsCsv = async (file, campaignId) => {
   const csv = typeof file === "string" ? file : await file.text();
-  return mutate(() => phishingClient.post("/recipients/import", {
-    csv,
-    recipients: parseRecipientsCsv(csv),
-  }));
+  const body = compactPayload({ csv, campaignId });
+  const mockFallback = () => {
+    const lines = csv.trim().split(/\r?\n/).filter(Boolean);
+    const imported = Math.max(lines.length - 1, 0);
+    return normalizeImportResult({ imported, recipients: [] });
+  };
+  return mutate(
+    () => phishingClient.post("/recipients/import", body),
+    mockFallback,
+    "importRecipientsCsv"
+  ).then((r) => ({ ...r, data: normalizeImportResult(r.data) }));
 };
 
 // ─── CAMPAIGNS ───────────────────────────────────────────────────
 
-export const listCampaigns = () =>
-  withMock(() => phishingClient.get("/"), MOCK_CAMPAIGNS, "campaigns").then((r) => ({
+export const listCampaigns = (params) =>
+  withMock(() => phishingClient.get("/campaigns", { params }), MOCK_CAMPAIGNS, "campaigns").then((r) => ({
     ...r,
     data: normalizeList(r.data).map(normalizeCampaign),
   }));
 
 export const getCampaign = (id) =>
-  listCampaigns().then((r) => ({
-    ...r,
-    data: normalizeCampaign(r.data.find((c) => c.id === id || c.raw?._id === id) ?? MOCK_CAMPAIGNS.find((c) => c.id === id) ?? MOCK_CAMPAIGNS[0]),
-  }));
+  withMock(
+    () => phishingClient.get(`/campaigns/${id}`),
+    MOCK_CAMPAIGNS.find((c) => c.id === id) ?? MOCK_CAMPAIGNS[0],
+    "getCampaign"
+  ).then((r) => ({ ...r, data: normalizeCampaign(r.data) }));
 
 export const createCampaign = (payload) => mutate(
-  () => phishingClient.post("/", toCampaignPayload(payload)),
+  () => phishingClient.post("/campaigns", toCampaignPayload(payload)),
   () => ({ _id: `mock-campaign-${Date.now()}`, ...toCampaignPayload(payload), status: "draft" }),
   "createCampaign"
-);
+).then((r) => ({ ...r, data: normalizeCampaign(r.data?.campaign ?? r.data) }));
+
 export const updateCampaign = (id, payload) => mutate(
-  () => Promise.reject(new Error("Campaign update endpoint is not available in backend yet")),
+  () => phishingClient.patch(`/campaigns/${id}`, toCampaignPayload(payload)),
   () => ({ _id: id, ...toCampaignPayload(payload) }),
   "updateCampaign"
-);
+).then((r) => ({ ...r, data: normalizeCampaign(r.data) }));
+
 export const deleteCampaign = (id) => mutate(
-  () => Promise.reject(new Error("Campaign delete endpoint is not available in backend yet")),
+  () => phishingClient.delete(`/campaigns/${id}`),
   () => ({ deleted: true, id }),
   "deleteCampaign"
 );
-export const attachCampaignRecipients = (id, recipientIds) =>
-  mutate(
-    () => Promise.reject(new Error("Recipient attach endpoint is not available in backend yet")),
-    () => ({ campaignId: id, attached: recipientIds.length }),
+
+function toRecipientAttachPayload(item) {
+  if (typeof item === "string") return compactPayload({ email: item });
+  return compactPayload({
+    email: cleanText(item.email),
+    fullName: cleanText(item.fullName ?? item.name),
+    department: cleanText(item.department),
+    jobTitle: cleanText(item.jobTitle),
+    manager: cleanText(item.manager),
+  });
+}
+
+export const attachCampaignRecipients = (id, recipients) => {
+  const list = Array.isArray(recipients) ? recipients : [];
+  const body = {
+    recipients: list.map(toRecipientAttachPayload),
+  };
+  return mutate(
+    () => phishingClient.post(`/campaigns/${id}/recipients`, body),
+    () => ({ added: list.length, recipients: [] }),
     "attachCampaignRecipients"
-  );
-export const launchCampaign = (id) => mutate(() => phishingClient.post(`/${id}/launch`), { queued: 0 }, "launchCampaign");
-export const pauseCampaign = (id) => mutate(() => Promise.reject(new Error("Campaign pause endpoint is not available in backend yet")), { id, status: "paused" }, "pauseCampaign");
-export const resumeCampaign = (id) => mutate(() => Promise.reject(new Error("Campaign resume endpoint is not available in backend yet")), { id, status: "active" }, "resumeCampaign");
-export const stopCampaign = (id) => mutate(() => Promise.reject(new Error("Campaign stop endpoint is not available in backend yet")), { id, status: "completed" }, "stopCampaign");
+  ).then((r) => ({
+    ...r,
+    data: {
+      added: Number(r.data?.added ?? list.length),
+      recipients: r.data?.recipients ?? [],
+    },
+  }));
+};
+
+export const launchCampaign = (id, payload = {}) => mutate(
+  () => phishingClient.post(`/campaigns/${id}/launch`, compactPayload(payload)),
+  { queued: 0 },
+  "launchCampaign"
+).then((r) => ({
+  ...r,
+  data: {
+    queued: Number(r.data?.queued ?? 0),
+    campaign: r.data?.campaign ? normalizeCampaign(r.data.campaign) : undefined,
+    ...r.data,
+  },
+}));
+
+export const pauseCampaign = (id) => mutate(
+  () => phishingClient.post(`/campaigns/${id}/pause`),
+  { id, status: "paused" },
+  "pauseCampaign"
+);
+
+export const resumeCampaign = (id) => mutate(
+  () => phishingClient.post(`/campaigns/${id}/resume`),
+  { id, status: "running" },
+  "resumeCampaign"
+);
+
+export const stopCampaign = (id) => mutate(
+  () => phishingClient.post(`/campaigns/${id}/stop`),
+  { id, status: "cancelled" },
+  "stopCampaign"
+);
 
 export const getCampaignQueue = (id) =>
-  withMock(() => phishingClient.get(`/reports/${id}/stats`), MOCK_QUEUE, "queue").then((r) => ({
+  withMock(
+    async () => {
+      const [statsRes, campaignRes] = await Promise.all([
+        phishingClient.get(`/reports/${id}/stats`),
+        phishingClient.get(`/campaigns/${id}`),
+      ]);
+      const stats = unwrap(statsRes.data);
+      const campaign = unwrap(campaignRes.data);
+      return {
+        ...stats,
+        totalRecipients: campaign?.recipientsCount ?? stats.totalRecipients,
+        recipientsCount: campaign?.recipientsCount,
+        status: campaign?.status,
+      };
+    },
+    MOCK_QUEUE,
+    "queue"
+  ).then((r) => ({
     ...r,
     data: r.isMock ? r.data : normalizeQueue(r.data),
   }));
 
 // ─── TRACKING (admin) ────────────────────────────────────────────
 
-const unavailableTrackingAdmin = () => Promise.reject(new Error("Tracking admin endpoint is not available in backend yet"));
+function listTrackingEvents(params = {}) {
+  return phishingClient.get("/events", { params });
+}
 
-export const getTrackingLogs = () =>
-  withMock(unavailableTrackingAdmin, MOCK_TRACKING_EVENTS, "tracking-logs").then((r) => ({
+export const getTrackingLogs = (params) =>
+  withMock(() => listTrackingEvents(params), MOCK_TRACKING_EVENTS, "tracking-logs").then((r) => ({
     ...r,
     data: normalizeList(r.data).map(normalizeTrackingEvent),
   }));
 
-export const getTrackingTimeline = () =>
-  withMock(unavailableTrackingAdmin, MOCK_TRACKING_EVENTS, "timeline").then((r) => ({
+export const getTrackingTimeline = (params) =>
+  withMock(() => listTrackingEvents(params), MOCK_TRACKING_EVENTS, "timeline").then((r) => ({
     ...r,
     data: normalizeList(r.data).map(normalizeTrackingEvent),
   }));
 
 // ─── TRACKING (public — no JWT) ──────────────────────────────────
 
-export const trackOpen = (token) => phishingTrackClient.post(`/track/${token}`, { type: "open" });
-export const trackClick = (token) => phishingTrackClient.post(`/track/${token}`, { type: "click" });
-export const trackVisit = (token) => phishingTrackClient.post(`/track/${token}`, { type: "click" });
-export const trackSubmit = (token, payload) => phishingTrackClient.post(`/track/${token}`, { ...payload, type: "submit" });
-export const trackDownload = (token, payload = {}) => phishingTrackClient.post(`/track/${token}`, { ...payload, type: "click" });
+export const trackOpen = (trackingId) =>
+  phishingTrackClient.get(`/track/open/${trackingId}`, { responseType: "blob" });
+
+export const trackClick = (trackingId, url) =>
+  phishingTrackClient.get(`/track/click/${trackingId}`, { params: { url }, maxRedirects: 0, validateStatus: (s) => s >= 200 && s < 400 });
+
+export const trackVisit = (trackingId) =>
+  phishingTrackClient.post(`/track/visit/${trackingId}`);
+
+export const trackSubmit = (trackingId, payload) =>
+  phishingTrackClient.post(`/track/submit/${trackingId}`, { username: payload.username ?? payload.email ?? "user" });
+
+export const trackDownload = (trackingId, payload = {}) =>
+  phishingTrackClient.post(`/track/download/${trackingId}`, payload);
 
 // ─── REPORTS ─────────────────────────────────────────────────────
 
@@ -290,8 +390,20 @@ export const generateReport = (campaignId) => mutate(() => phishingClient.post(`
 export const getReport = (id) =>
   withMock(() => phishingClient.get(`/reports/${id}/stats`), { id, summary: MOCK_REPORT_STATS }, "getReport");
 
-export const downloadReport = (id) =>
-  phishingClient.get(`/reports/${id}/download`, { responseType: "blob" });
+export const downloadReport = async (campaignId) => {
+  const res = await phishingClient.get(`/reports/${campaignId}/download`, { responseType: "blob" });
+  triggerBrowserDownload(res.data, `phishing-report-${campaignId}.pdf`);
+  return res;
+};
+
+export function triggerBrowserDownload(blobData, filename) {
+  const url = window.URL.createObjectURL(new Blob([blobData]));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  window.URL.revokeObjectURL(url);
+}
 
 // ─── INTEGRATIONS ────────────────────────────────────────────────
 
@@ -308,6 +420,13 @@ export const pushToGrc = (payload) => postIntegration("/api/grc/integrations/phi
 export const pushToSoar = (payload) => postIntegration("/api/soar/incidents", payload);
 export const pushToSiem = (payload) => postIntegration("/api/grc/integrations/siem/alerts", payload);
 export const pushToOpenCti = (payload) => postIntegration("/api/grc/integrations/opencti/ioc", payload);
+
+function inferOpenCtiType(indicator = "") {
+  const value = String(indicator).trim();
+  if (/^https?:\/\//i.test(value)) return "url";
+  if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(value)) return "ip";
+  return "domain";
+}
 
 export function buildIntegrationPayload(campaign) {
   const isObjectId = (value) => typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
@@ -335,9 +454,10 @@ export function buildIntegrationPayload(campaign) {
       indexName: "phishing",
     }) : null,
     opencti: compactPayload({
+      indicator: campaign?.trackingDomain ?? campaign?.name ?? campaignId,
+      iocType: inferOpenCtiType(campaign?.trackingDomain ?? campaign?.name),
       title: `Phishing campaign: ${campaign?.name}`,
-      indicator: campaignId ?? campaign?.name,
-      iocType: "domain",
+      description: "Campaign indicator pushed from phishing simulation",
       confidence: 3,
     }),
   };

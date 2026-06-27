@@ -11,8 +11,7 @@ export default function useTracking(campaignId, live = false) {
 
   const load = useCallback(async () => {
     try {
-      const params = campaignId ? { campaignId } : {};
-      const res = await getTrackingTimeline(params);
+      const res = await getTrackingTimeline(campaignId ? { campaignId } : undefined);
       setEvents(res.data);
       setIsMock(res.isMock);
       setError(null);
@@ -26,8 +25,7 @@ export default function useTracking(campaignId, live = false) {
   const loadLogs = useCallback(async () => {
     setLoading(true);
     try {
-      const params = campaignId ? { campaignId } : {};
-      const res = await getTrackingLogs(params);
+      const res = await getTrackingLogs(campaignId ? { campaignId } : undefined);
       setEvents(res.data);
       setIsMock(res.isMock);
     } catch (err) {

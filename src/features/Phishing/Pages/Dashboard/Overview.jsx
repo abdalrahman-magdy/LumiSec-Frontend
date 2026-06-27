@@ -12,13 +12,16 @@ import CampaignFunnel from "../../Components/CampaignFunnel/CampaignFunnel";
 import RecentCampaignsTabel from "../../Components/RecentCampaignsTabel/RecentCampaignsTabel";
 import PhishingAlert from "../../Components/Shared/PhishingAlert";
 import PhishingLoading from "../../Components/Shared/PhishingLoading";
-import { useDashboardOverview } from "../../hooks/usePhishingDashboard";
+import { useDashboardOverview, useDashboardTrends } from "../../hooks/usePhishingDashboard";
+import useCampaigns from "../../hooks/useCampaigns";
 import { formatNumber, formatPercent } from "../../utils/normalizers";
 import "../../Components/Shared/PhishingShared.css";
 import "../../Pages/PhishingDashboard.css";
 
 export default function Overview() {
   const { data, loading, error, isMock, reload } = useDashboardOverview();
+  const { data: trends } = useDashboardTrends();
+  const { campaigns } = useCampaigns();
 
   if (loading && !data) return <PhishingLoading message="Loading phishing overview..." skeleton rows={4} />;
 
@@ -29,10 +32,10 @@ export default function Overview() {
           <h5 className="text-white mb-1">Phishing Simulation — Overview</h5>
           <p className="dashboard-desc mb-0">SOC dashboard — live campaign metrics</p>
         </div>
-        <div className="d-flex gap-2">
-          <Link to="/Phishing/Dashboard/Risks" className="btn btn-sm integration-btn">Risks</Link>
-          <Link to="/Phishing/Dashboard/Departments" className="btn btn-sm integration-btn">Departments</Link>
-          <Link to="/Phishing/Dashboard/Trends" className="btn btn-sm integration-btn">Trends</Link>
+        <div className="d-flex gap-2 flex-wrap">
+          <Link to="/Phishing/Dashboard/Risks" className="btn btn-sm phishing-integration-btn phishing-integration-soar">Risks</Link>
+          <Link to="/Phishing/Dashboard/Departments" className="btn btn-sm phishing-integration-btn phishing-integration-grc">Departments</Link>
+          <Link to="/Phishing/Dashboard/Trends" className="btn btn-sm phishing-integration-btn phishing-integration-siem">Trends</Link>
         </div>
       </div>
 
@@ -48,11 +51,11 @@ export default function Overview() {
       </div>
 
       <div className="row justify-content-between m-0">
-        <div className="col-7 dashboard-card mb-3"><CampaignTrendChart /></div>
-        <div className="col dashboard-card mb-3 ms-2"><CampaignFunnel /></div>
+        <div className="col-7 dashboard-card mb-3"><CampaignTrendChart trends={trends} /></div>
+        <div className="col dashboard-card mb-3 ms-2"><CampaignFunnel overview={data} /></div>
       </div>
 
-      <div className="col dashboard-card mb-3"><RecentCampaignsTabel /></div>
+      <div className="col dashboard-card mb-3"><RecentCampaignsTabel campaigns={campaigns} /></div>
     </div>
   );
 }

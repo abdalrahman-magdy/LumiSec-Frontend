@@ -5,7 +5,6 @@ import DashboardBarChart from '../Components/DashboardBarChart/DashboardBarChart
 import DashboardPieChart from '../Components/DashboardPieChart/DashboardPieChart'
 import AnalystPerformance from '../Components/AnalystPerformance/AnalystPerformance'
 import AutomatedPlayBook from '../Components/AutomatedPlayBook/AutomatedPlayBook'
-import profile from "../../../assets/prrofile.png"
 import { Link, useOutletContext } from 'react-router-dom'
 import logo from "../../../assets/LumiSecLogoB 1@3x.png"
 import "./SoarAnalytics.css"
@@ -231,16 +230,13 @@ export default function SoarAnalytics () {
         </button>
 
         <div className='soar-analytics-profile'>
-
-
             <button className='soar-profile-button' type='button' onClick={() => setOpenPanel("profile")}>
                 <figure className='mb-0'>
-
-                    <img src={profile} alt="profile" />
-
+                    <span className="soar-user-avatar-icon" aria-hidden="true">
+                        <i className="fa-solid fa-user" />
+                    </span>
                 </figure>
             </button>
-
         </div>
 
     </header>
@@ -440,7 +436,9 @@ export default function SoarAnalytics () {
                 {openPanel === "profile" ? (
                     <div className='soar-profile-panel'>
                         <div className='soar-profile-hero'>
-                            <img src={profile} alt='profile' />
+                            <span className="soar-user-avatar-icon soar-user-avatar-icon-lg" aria-hidden="true">
+                                <i className="fa-solid fa-user" />
+                            </span>
                             <div>
                                 <h4>{displayName}</h4>
                                 <p>{displayRole}</p>

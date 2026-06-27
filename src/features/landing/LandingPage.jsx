@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "../auth/context/AuthContext";
 import {
   Activity,
   BarChart3,
@@ -88,6 +89,7 @@ const plans = [
 ];
 
 export default function LandingPage() {
+  const { isAuthenticated, isLoading } = useAuth();
   const [typedTitle, setTypedTitle] = useState("");
 
   useEffect(() => {
@@ -110,6 +112,14 @@ export default function LandingPage() {
   const highlightStart = heroTitle.indexOf(heroHighlight);
   const normalTitle = typedTitle.slice(0, Math.min(typedTitle.length, highlightStart));
   const highlightedTitle = typedTitle.slice(highlightStart);
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/welcome" replace />;
+  }
 
   return (
     <main className="landing-page">

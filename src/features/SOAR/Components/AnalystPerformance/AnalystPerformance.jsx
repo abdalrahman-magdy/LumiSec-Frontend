@@ -1,5 +1,4 @@
 import React from 'react'
-import profileImage from "../../../../assets/prrofile.png"
 import "./AnalystPerformance.css"
 export default function AnalystPerformance({ analysts = [], loading = false, onViewAll }) {
     const rows = analysts.slice(0, 5);
@@ -33,9 +32,9 @@ export default function AnalystPerformance({ analysts = [], loading = false, onV
                 <tr key={row.analyst?._id || row.analyst?.email || row.analyst?.name}>
                     <td>
                         <div className='d-flex align-items-center'>
-                            <figure className='mb-0 me-2'>
-                                <img className='rounded-circle w-100' src={profileImage} alt="profileImage" />
-                            </figure>
+                            <span className="analyst-avatar-icon me-2" aria-hidden="true">
+                                <i className="fa-solid fa-user" />
+                            </span>
                             <p className='mb-0'>{row.analyst?.name || row.analyst?.email || "Unknown analyst"}</p>
                         </div>
                     </td>

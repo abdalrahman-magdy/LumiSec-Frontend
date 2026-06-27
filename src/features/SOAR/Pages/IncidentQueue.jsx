@@ -7,9 +7,7 @@ import "./IncidentsQueue.css";
 import useIncidentsQueue from "../Hooks/useIncidentsQueue";
 import StatsCard from "../Components/StatsCard/StatsCard";
 import { Activity, DollarSign, Menu, Radio, RefreshCcw, Server, ShieldCheck, Timer } from "lucide-react";
-import profile from "../../../assets/prrofile.png"
 import logo from "../../../assets/LumiSecLogoB 1@3x.png"
-
 
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
 
@@ -110,22 +108,20 @@ export default function IncidentQueue() {
             <div className='incident-queue-user d-none d-md-block'>
               <p>Mohamed Atef</p>
               <span>Lead Security Analyst (Tier III)</span>
-
             </div>
 
-              <button
-                className="incident-profile-button"
-                type="button"
-                onClick={() => setProfileOpen(true)}
-                aria-label="Open analyst profile"
-              >
+            <button
+              className="incident-profile-button"
+              type="button"
+              onClick={() => setProfileOpen(true)}
+              aria-label="Open analyst profile"
+            >
               <figure className='incident-queue-profile mb-0'>
-
-                  <img src={profile} alt="profile" />
-
+                <span className="soar-user-avatar-icon" aria-hidden="true">
+                  <i className="fa-solid fa-user" />
+                </span>
               </figure>
-              </button>
-
+            </button>
           </div>
 
       </header>
@@ -365,7 +361,9 @@ export default function IncidentQueue() {
               <button type="button" onClick={() => setProfileOpen(false)}>Close</button>
             </div>
             <div className="incident-profile-panel">
-              <img src={profile} alt="profile" />
+              <span className="soar-user-avatar-icon soar-user-avatar-icon-lg" aria-hidden="true">
+                <i className="fa-solid fa-user" />
+              </span>
               <h3>Mohamed Atef</h3>
               <p>Lead Security Analyst (Tier III)</p>
               <dl>

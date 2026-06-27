@@ -37,7 +37,7 @@ export const MOCK_CAMPAIGNS = [
   {
     id: "camp-1",
     name: "Q2 Password Reset Drill",
-    status: "active",
+    status: "running",
     templateId: "tpl-1",
     landingPageId: "lp-1",
     recipientsCount: 450,
@@ -68,8 +68,8 @@ export const MOCK_TEMPLATES = [
 ];
 
 export const MOCK_LANDING_PAGES = [
-  { id: "lp-1", name: "Microsoft Login Clone", url: "/lp/ms-login", category: "credential", updatedAt: "2026-04-01" },
-  { id: "lp-2", name: "Payroll Portal", url: "/lp/payroll", category: "finance", updatedAt: "2026-04-05" },
+  { id: "lp-1", name: "Microsoft Login Clone", title: "Sign in", url: "https://example.com/training", updatedAt: "2026-04-01" },
+  { id: "lp-2", name: "Payroll Portal", title: "Payroll", url: "https://example.com/training", updatedAt: "2026-04-05" },
 ];
 
 export const MOCK_RECIPIENTS = [

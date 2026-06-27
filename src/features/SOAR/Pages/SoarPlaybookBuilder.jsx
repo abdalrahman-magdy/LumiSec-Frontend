@@ -20,7 +20,6 @@ import {
   Settings,
   Zap,
 } from "lucide-react";
-import profile from "../../../assets/prrofile.png";
 import "./SoarPlaybookBuilder.css";
 import { createPlaybook, getPlaybooks, updatePlaybook } from "../Services/soar.api";
 
@@ -360,7 +359,9 @@ export default function SoarPlaybookBuilder() {
           <button className="soar-icon-button" type="button" aria-label="Settings" onClick={() => setStatus("Settings panel opened")}>
             <Settings />
           </button>
-          <img className="soar-avatar" src={profile} alt="User profile" />
+          <span className="soar-avatar soar-user-avatar-icon" aria-hidden="true">
+            <i className="fa-solid fa-user" />
+          </span>
         </div>
       </header>
 
