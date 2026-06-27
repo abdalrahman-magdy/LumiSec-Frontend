@@ -1,0 +1,28 @@
+.modal-content {
+    background-color: var(--container-background) !important;
+    border: 3px solid #553399;
+}
+
+.modal-backdrop.show {
+    background-color: rgba(10, 14, 26, 0.5) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    opacity: 1 !important;
+}
+
+.grc-finding-backdrop {
+    z-index: 5000 !important;
+}
+
+.grc-finding-modal {
+    z-index: 5010 !important;
+}
+
+.add-btn {
+    background: linear-gradient(90deg, #7F56D9, #539BFF);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9DA3B0;
+}

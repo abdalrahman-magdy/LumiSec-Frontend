@@ -7,7 +7,7 @@ import "../../../styles/global.css";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const { demoLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,28 +24,37 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setNotice(null);
+
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      setNotice({
+        type: "danger",
+        message: "Email and password are required.",
+      });
+      return;
+    }
+
     setLoading(true);
 
-    window.setTimeout(() => {
-      demoLogin(email, rememberMe);
+    try {
+      await login(trimmedEmail, password, rememberMe);
       const destination =
         returnUrl && returnUrl.startsWith("/") ? returnUrl : "/welcome";
       navigate(destination, { replace: true });
+    } catch (err) {
+      setNotice({
+        type: "danger",
+        message: err.message || "Sign in failed. Check your email and password.",
+      });
+    } finally {
       setLoading(false);
-    }, 250);
-  };
-
-  const handleCreateAccount = () => {
-    setNotice(null);
-    demoLogin(email, rememberMe);
-    navigate("/welcome", { replace: true });
+    }
   };
 
   const handleForgotPassword = () => {
-    const targetEmail = email.trim() || "your account email";
     setNotice({
       type: "info",
-      message: `Password reset is enabled for demo mode. Use any password to continue as ${targetEmail}.`,
+      message: "Contact your administrator to reset your password.",
     });
   };
 
@@ -104,7 +113,7 @@ export default function Login() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} noValidate>
+              <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="text-secondary" htmlFor="email">
                     Email
@@ -118,6 +127,7 @@ export default function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
                     disabled={loading}
+                    required
                   />
                 </div>
                 <div className="mb-4">
@@ -133,6 +143,7 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
                     disabled={loading}
+                    required
                   />
                 </div>
                 <div className="d-flex justify-content-between mb-4">
@@ -171,14 +182,6 @@ export default function Login() {
                   ) : (
                     "Sign in"
                   )}
-                </button>
-                <button
-                  type="button"
-                  className="create-account-btn text-white w-100 pt-3 p-2 rounded-3 mb-3"
-                  onClick={handleCreateAccount}
-                  disabled={loading}
-                >
-                  Create account
                 </button>
                 <p className="text-secondary text-center position-relative sepration-text">
                   or continue with

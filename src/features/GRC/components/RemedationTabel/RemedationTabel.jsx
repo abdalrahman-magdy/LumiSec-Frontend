@@ -37,11 +37,10 @@ export default function RemedationTabel({ tasks = [], loading = false, error = n
                     <td>
                         <button
                             type="button"
-                            className="btn btn-sm integration-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#EditTaskRemediationModal"
+                            className="btn btn-sm grc-edit-btn"
                             onClick={() => onEdit(task)}
                         >
+                            <i className="fa-solid fa-pen-to-square me-1" aria-hidden="true"></i>
                             Edit
                         </button>
                     </td>

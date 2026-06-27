@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { createGrcControl, getGrcControls, updateGrcControl } from "../services/grc.api";
+import { normalizeControl, normalizeList, normalizePaginationParams } from "../utils/grcNormalizers";
 
 export default function useGrcControls(params = {}) {
-  const paramsKey = JSON.stringify(params);
+  const paramsKey = JSON.stringify(normalizePaginationParams(params));
   const [controls, setControls] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,7 +14,7 @@ export default function useGrcControls(params = {}) {
     setError(null);
     try {
       const result = await getGrcControls(JSON.parse(paramsKey));
-      setControls(Array.isArray(result.data) ? result.data : []);
+      setControls(normalizeList(result.data).map(normalizeControl));
       setPagination(result.pagination ?? null);
     } catch (err) {
       setError(err);

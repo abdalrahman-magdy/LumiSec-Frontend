@@ -30,6 +30,14 @@
     opacity: 1 !important;
 }
 
+.grc-standard-backdrop {
+    z-index: 5000 !important;
+}
+
+.grc-standard-modal {
+    z-index: 5010 !important;
+}
+
 .upload-label{
     width: 100%;
     min-height: 180px;

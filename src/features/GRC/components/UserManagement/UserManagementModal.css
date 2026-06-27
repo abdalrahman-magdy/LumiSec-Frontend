@@ -1,0 +1,20 @@
+.modal-content {
+  background-color: var(--container-background) !important;
+  border: 3px solid #553399;
+}
+
+.grc-user-backdrop {
+  z-index: 5000 !important;
+}
+
+.grc-user-modal {
+  z-index: 5010 !important;
+}
+
+.add-btn {
+  background: linear-gradient(90deg, #7F56D9, #539BFF);
+}
+
+input::placeholder {
+  color: #9DA3B0;
+}

@@ -218,3 +218,42 @@
     }
 
 }
+
+.add-btn {
+    background: linear-gradient(90deg, #7F56D9, #539BFF);
+}
+
+/* Bootstrap modals must stack above fixed topbar (z-index 3000) */
+.modal {
+    z-index: 3100 !important;
+}
+
+.modal-backdrop {
+    z-index: 3050 !important;
+}
+
+/* Table row edit actions — visible on dark backgrounds */
+.grc-edit-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(90deg, #7F56D9, #539BFF);
+    color: #fff !important;
+    white-space: nowrap;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.grc-edit-btn:hover,
+.grc-edit-btn:focus {
+    color: #fff !important;
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(127, 86, 217, 0.35);
+}
+
+.grc-edit-btn:focus-visible {
+    outline: 2px solid #539BFF;
+    outline-offset: 2px;
+}

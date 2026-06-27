@@ -29,7 +29,9 @@ function summarizeControls(controls = []) {
 
 export default function GRCStandards() {
 const { controls, loading, error, createControl, updateControl } = useGrcControls({ limit: 100, sort: "framework" });
-const [selectedControl, setSelectedControl] = useState(null);
+const [showAddModal, setShowAddModal] = useState(false);
+const [editControl, setEditControl] = useState(null);
+
 const summaries = summarizeControls(controls);
 
 return <>
@@ -43,9 +45,9 @@ return <>
             </h1>
 
             <button
+                type="button"
                 className='btn add-btn text-white border-0'
-                data-bs-toggle="modal"
-                data-bs-target="#addStandardModal"
+                onClick={() => setShowAddModal(true)}
             >
                 <i className="fa-solid fa-plus me-2"></i>
                 Add Standard
@@ -97,11 +99,10 @@ return <>
                                 <td>
                                     <button
                                         type="button"
-                                        className="btn btn-sm integration-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editStandardModal"
-                                        onClick={() => setSelectedControl(control)}
+                                        className="btn btn-sm grc-edit-btn"
+                                        onClick={() => setEditControl(control)}
                                     >
+                                        <i className="fa-solid fa-pen-to-square me-1" aria-hidden="true"></i>
                                         Edit
                                     </button>
                                 </td>
@@ -114,12 +115,17 @@ return <>
 
     </div>
 
-    <AddStandardModal onCreate={createControl} />
     <AddStandardModal
-        modalId="editStandardModal"
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onCreate={createControl}
+    />
+    <AddStandardModal
+        show={Boolean(editControl)}
+        onClose={() => setEditControl(null)}
         title="Edit Standard"
         submitLabel="Save Standard"
-        initialValue={selectedControl}
+        initialValue={editControl}
         onUpdate={updateControl}
     />
 

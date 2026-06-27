@@ -129,11 +129,8 @@ export default function LandingPage() {
           <a href="#contact">Contact</a>
         </div>
         <div className="landing-actions">
-          <Link className="landing-btn landing-btn-outline" to="/login">
+          <Link className="landing-btn landing-btn-primary" to="/login">
             Login
-          </Link>
-          <Link className="landing-btn landing-btn-primary" to="/welcome">
-            Create Account
           </Link>
         </div>
       </nav>

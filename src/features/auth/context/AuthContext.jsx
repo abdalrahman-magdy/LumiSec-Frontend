@@ -9,6 +9,10 @@ import {
 
 const AuthContext = createContext(null);
 
+export function isDemoToken(token) {
+  return typeof token === "string" && token.startsWith("demo-token-");
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -17,9 +21,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const storedToken = getToken();
     const storedUser = getUser();
-    if (storedToken && storedUser) {
+    if (storedToken && storedUser && !isDemoToken(storedToken)) {
       setToken(storedToken);
       setUser(storedUser);
+    } else if (isDemoToken(storedToken)) {
+      clearStoredAuth();
     }
     setIsLoading(false);
   }, []);
@@ -58,17 +64,33 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((nextUser) => {
+    const currentToken = getToken();
+    if (!currentToken || !nextUser) return;
+    const remember = Boolean(localStorage.getItem("token"));
+    const sessionUser = {
+      _id: nextUser._id ?? nextUser.id,
+      name: nextUser.name,
+      email: nextUser.email,
+      role: nextUser.role,
+      department: nextUser.department,
+    };
+    setAuth(currentToken, sessionUser, remember);
+    setUser(sessionUser);
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
       token,
-      isAuthenticated: Boolean(token),
+      isAuthenticated: Boolean(token) && !isDemoToken(token),
       isLoading,
       login,
       demoLogin,
       logout,
+      updateUser,
     }),
-    [user, token, isLoading, login, demoLogin, logout]
+    [user, token, isLoading, login, demoLogin, logout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

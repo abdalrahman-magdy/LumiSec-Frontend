@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { getGrcFindings, getGrcReports } from "../services/grc.api";
+import {
+  addGrcReportFindings,
+  createGrcFinding,
+  createGrcReport,
+  generateGrcReport,
+  getGrcFindings,
+  getGrcReports,
+} from "../services/grc.api";
+import { normalizeFinding, normalizeList, normalizePaginationParams, normalizeReport } from "../utils/grcNormalizers";
 
 export default function useGrcReports(params = {}) {
-  const paramsKey = JSON.stringify(params);
+  const paramsKey = JSON.stringify(normalizePaginationParams(params));
   const [reports, setReports] = useState([]);
   const [findings, setFindings] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -13,12 +21,13 @@ export default function useGrcReports(params = {}) {
     setLoading(true);
     setError(null);
     try {
+      const parsed = JSON.parse(paramsKey);
       const [reportsResult, findingsResult] = await Promise.all([
-        getGrcReports(JSON.parse(paramsKey)),
-        getGrcFindings({ limit: 20, sort: "-createdAt" }),
+        getGrcReports(parsed),
+        getGrcFindings({ limit: 50, sort: "-createdAt" }),
       ]);
-      setReports(Array.isArray(reportsResult.data) ? reportsResult.data : []);
-      setFindings(Array.isArray(findingsResult.data) ? findingsResult.data : []);
+      setReports(normalizeList(reportsResult.data).map(normalizeReport));
+      setFindings(normalizeList(findingsResult.data).map(normalizeFinding));
       setPagination(reportsResult.pagination ?? null);
     } catch (err) {
       setError(err);
@@ -31,5 +40,40 @@ export default function useGrcReports(params = {}) {
     load();
   }, [load]);
 
-  return { reports, findings, pagination, loading, error, reload: load };
+  const createFinding = useCallback(async (payload) => {
+    const result = await createGrcFinding(payload);
+    await load();
+    return result;
+  }, [load]);
+
+  const createReport = useCallback(async (payload) => {
+    const result = await createGrcReport(payload);
+    await load();
+    return result;
+  }, [load]);
+
+  const addReportFindings = useCallback(async (reportId, findingIds) => {
+    const result = await addGrcReportFindings(reportId, findingIds);
+    await load();
+    return result;
+  }, [load]);
+
+  const generateReport = useCallback(async (reportId) => {
+    const result = await generateGrcReport(reportId);
+    await load();
+    return result;
+  }, [load]);
+
+  return {
+    reports,
+    findings,
+    pagination,
+    loading,
+    error,
+    reload: load,
+    createFinding,
+    createReport,
+    addReportFindings,
+    generateReport,
+  };
 }

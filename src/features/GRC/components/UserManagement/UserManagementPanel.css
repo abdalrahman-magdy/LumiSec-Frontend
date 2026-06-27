@@ -1,0 +1,16 @@
+.user-management-table {
+  border: 3px solid #2A3042;
+}
+
+.user-management-table td,
+.user-management-table th {
+  color: white;
+}
+
+.user-management-table tbody td {
+  color: #9DA3B0;
+}
+
+.user-management-table .risk-td p {
+  color: white !important;
+}

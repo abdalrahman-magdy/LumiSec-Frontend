@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { getGrcFindings } from "../services/grc.api";
+import { createGrcFinding, getGrcFindings } from "../services/grc.api";
+import { normalizeFinding, normalizeList, normalizePaginationParams } from "../utils/grcNormalizers";
 
 export default function useGrcFindings(params = {}) {
-  const paramsKey = JSON.stringify(params);
+  const paramsKey = JSON.stringify(normalizePaginationParams(params));
   const [findings, setFindings] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,7 +14,7 @@ export default function useGrcFindings(params = {}) {
     setError(null);
     try {
       const result = await getGrcFindings(JSON.parse(paramsKey));
-      setFindings(Array.isArray(result.data) ? result.data : []);
+      setFindings(normalizeList(result.data).map(normalizeFinding));
       setPagination(result.pagination ?? null);
     } catch (err) {
       setError(err);
@@ -26,5 +27,11 @@ export default function useGrcFindings(params = {}) {
     load();
   }, [load]);
 
-  return { findings, pagination, loading, error, reload: load };
+  const createFinding = useCallback(async (payload) => {
+    const result = await createGrcFinding(payload);
+    await load();
+    return result;
+  }, [load]);
+
+  return { findings, pagination, loading, error, reload: load, createFinding };
 }
