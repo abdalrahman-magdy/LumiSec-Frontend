@@ -11,12 +11,13 @@ import AnomalyAlerts from "../Components/AnomalyAlerts/AnomalyAlerts";
 import ExfiltrationIndicators from "../Components/ExfiltrationIndicators/ExfiltrationIndicators";
 import NetworkAlert from "../Components/Shared/NetworkAlert";
 import NetworkLoading from "../Components/Shared/NetworkLoading";
+import NetworkPagination from "../Components/Shared/NetworkPagination";
 import useFlowMetrics from "../hooks/useFlowMetrics";
 import { formatNumber } from "../utils/normalizers";
 
 export default function FlowMonitoring() {
   const { setTitle } = useOutletContext();
-  const { metrics, loading, error, reload } = useFlowMetrics();
+  const { metrics, pagination, page, setPage, loading, error, reload } = useFlowMetrics();
 
   useEffect(() => {
     setTitle("Flow Monitoring");
@@ -100,6 +101,14 @@ export default function FlowMonitoring() {
           <ExfiltrationIndicators indicators={metrics?.exfiltration ?? []} />
         </div>
       </div>
+
+      <NetworkPagination
+        page={pagination.page ?? page}
+        pages={pagination.pages ?? 1}
+        total={pagination.total ?? 0}
+        onPageChange={setPage}
+        disabled={loading}
+      />
     </>
   );
 }

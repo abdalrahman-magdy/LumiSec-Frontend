@@ -7,12 +7,16 @@ import NetworkAlert from "../Components/Shared/NetworkAlert";
 import NetworkLoading from "../Components/Shared/NetworkLoading";
 import AssetDetailModal from "../Components/Shared/AssetDetailModal";
 import AssetContextModal from "../Components/Shared/AssetContextModal";
+import NetworkPagination from "../Components/Shared/NetworkPagination";
 import useAssetInventory from "../hooks/useAssetInventory";
 
 export default function AssetInventory() {
   const { setTitle } = useOutletContext();
   const {
     assets,
+    pagination,
+    page,
+    setPage,
     loading,
     error,
     search,
@@ -87,7 +91,7 @@ export default function AssetInventory() {
             <figure className="mb-0 me-2">
               <img src={assetsInventoryIcon} className="w-100" alt="inventory" />
             </figure>
-            <h6 className="text-white mb-0">Asset Inventory ({assets.length})</h6>
+            <h6 className="text-white mb-0">Asset Inventory ({pagination.total || assets.length})</h6>
           </div>
         </div>
         {loading && !assets.length ? (
@@ -100,6 +104,13 @@ export default function AssetInventory() {
             onContextLookup={openContext}
           />
         )}
+        <NetworkPagination
+          page={pagination.page ?? page}
+          pages={pagination.pages ?? 1}
+          total={pagination.total ?? 0}
+          onPageChange={setPage}
+          disabled={loading}
+        />
       </div>
 
       {selectedAsset && (

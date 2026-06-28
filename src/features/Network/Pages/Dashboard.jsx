@@ -14,11 +14,13 @@ import NetworkAlert from "../Components/Shared/NetworkAlert";
 import NetworkLoading from "../Components/Shared/NetworkLoading";
 import MisconfigurationsTabel from "../Components/MisconfigurationsTabel/MisconfigurationsTabel";
 import useNetworkDashboard from "../hooks/useNetworkDashboard";
+import useNetworkPermissions from "../hooks/useNetworkPermissions";
 import { formatNumber } from "../utils/normalizers";
 
 export default function Dashboard() {
   const { setTitle } = useOutletContext();
   const navigate = useNavigate();
+  const { canRunNetwork, canSniffTraffic } = useNetworkPermissions();
   const {
     summary,
     misconfigPreview,
@@ -41,8 +43,10 @@ export default function Dashboard() {
   };
 
   const handlePortScan = async () => {
-    const ok = await runPortScan();
-    if (ok) navigate("/Network/PortScanning");
+    const result = await runPortScan();
+    if (result) {
+      navigate("/Network/PortScanning", { state: { scanResult: result, target: result.target } });
+    }
   };
 
   const handleSniffing = async () => {
@@ -89,7 +93,7 @@ export default function Dashboard() {
       <div className="d-flex align-items-center my-3 ps-3 flex-wrap gap-2">
         <button
           type="button"
-          disabled={actionLoading === "discover"}
+          disabled={!canRunNetwork || actionLoading === "discover"}
           className="btn start-btn border-0 rounded-3 text-black fw-medium ps-0 d-flex align-items-center"
           onClick={handleDiscovery}
         >
@@ -98,7 +102,7 @@ export default function Dashboard() {
         </button>
         <button
           type="button"
-          disabled={actionLoading === "portscan"}
+          disabled={!canRunNetwork || actionLoading === "portscan"}
           className="btn export-reports-btn rounded-3 fw-medium ps-0 d-flex align-items-center"
           onClick={handlePortScan}
         >
@@ -107,7 +111,7 @@ export default function Dashboard() {
         </button>
         <button
           type="button"
-          disabled={actionLoading === "sniff"}
+          disabled={!canSniffTraffic || actionLoading === "sniff"}
           className="btn view-btn rounded-3 fw-medium ps-0 d-flex align-items-center"
           onClick={handleSniffing}
         >
@@ -141,6 +145,7 @@ export default function Dashboard() {
                 title={asset.hostname}
                 number={String(asset.riskScore)}
                 text={asset.ip}
+                riskScore={asset.riskScore}
               />
             ))}
             {!summary?.topVulnerable?.length && (

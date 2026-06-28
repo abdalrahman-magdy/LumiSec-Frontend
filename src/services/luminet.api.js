@@ -7,10 +7,11 @@ import {
   normalizeLiveStream,
   normalizeMisconfigurationList,
   normalizePortScanResult,
+  normalizeAssetDetails,
+  normalizeAssetContext,
 } from "../features/Network/utils/normalizers.js";
 import { getToken } from "../features/auth/utils/authStorage";
 import { buildNetworkScanPayload } from "../features/Network/utils/portScan";
-import { apiClient } from "./apiClient";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:3000";
@@ -67,9 +68,10 @@ function handleResponseError(error) {
   }
 
   if (status >= 500) {
+    const serverMessage = error.response?.data?.message;
     return Promise.reject(
       new LuminetApiError(
-        "Backend incident — LumiNet services are temporarily unavailable.",
+        serverMessage || "Backend incident — LumiNet services are temporarily unavailable.",
         { status, data: error.response?.data }
       )
     );
@@ -100,6 +102,23 @@ function unwrapBackendBody(body) {
     : body;
 }
 
+function unwrapPaginatedResponse(response, mapItems) {
+  const body = response.data ?? {};
+  const rawList = unwrapBackendBody(body);
+  const list = Array.isArray(rawList) ? rawList : [];
+  const pagination = body.pagination ?? {
+    page: 1,
+    limit: list.length,
+    total: list.length,
+    pages: 1,
+  };
+
+  return {
+    items: mapItems(list),
+    pagination,
+  };
+}
+
 async function withRetry(requestFn, { retries = 2, delayMs = 1000, label } = {}) {
   let lastError;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
@@ -122,10 +141,10 @@ async function withRetry(requestFn, { retries = 2, delayMs = 1000, label } = {})
 
 export async function discoverNetwork(payload) {
   const response = await withRetry(
-    () => luminetClient.post("/network/discover", payload),
+    () => luminetClient.post("/network/discover", { subnet: payload.subnet }),
     { retries: 2, label: "discoverNetwork" }
   );
-  return normalizeDiscoveryResult(unwrapBackendBody(response.data));
+  return normalizeDiscoveryResult(unwrapBackendBody(response.data), payload.subnet);
 }
 
 export async function scanPorts(payload) {
@@ -139,12 +158,22 @@ export async function scanPorts(payload) {
 
 export async function getMisconfigurations(params) {
   const response = await luminetClient.get("/network/misconfigurations", { params });
-  return normalizeMisconfigurationList(unwrapBackendBody(response.data));
+  return unwrapPaginatedResponse(response, normalizeMisconfigurationList);
+}
+
+export async function resolveMisconfiguration(id, status = "resolved") {
+  const response = await luminetClient.patch(`/network/misconfigurations/${id}`, { status });
+  const body = unwrapBackendBody(response.data);
+  return normalizeMisconfigurationList([body])[0] ?? body;
 }
 
 export async function getFlowMetrics(params) {
   const response = await luminetClient.get("/network/flow-metrics", { params });
-  return normalizeFlowMetrics(unwrapBackendBody(response.data));
+  const { items, pagination } = unwrapPaginatedResponse(response, (rows) => rows);
+  return {
+    metrics: normalizeFlowMetrics(items),
+    pagination,
+  };
 }
 
 // ─── ASSETS ─────────────────────────────────────────────────────
@@ -154,20 +183,20 @@ export async function getAssetInventory(params) {
     () => luminetClient.get("/assets/inventory", { params }),
     { retries: 2, label: "getAssetInventory" }
   );
-  return normalizeAssetList(unwrapBackendBody(response.data));
+  return unwrapPaginatedResponse(response, normalizeAssetList);
 }
 
 export async function getAssetDetails(mac) {
   const encoded = encodeURIComponent(mac);
   const response = await luminetClient.get(`/assets/details/${encoded}`);
   const body = unwrapBackendBody(response.data);
-  return normalizeAsset(body?.asset ?? body ?? {});
+  return normalizeAssetDetails(body);
 }
 
 export async function getAssetContext(ip) {
   const encoded = encodeURIComponent(ip);
   const response = await luminetClient.get(`/assets/context/${encoded}`);
-  return unwrapBackendBody(response.data);
+  return normalizeAssetContext(unwrapBackendBody(response.data));
 }
 
 // ─── SNIFFING ───────────────────────────────────────────────────
@@ -183,14 +212,108 @@ export async function getLiveStream(params) {
 }
 
 // ─── INTEGRATIONS ───────────────────────────────────────────────
+// All outbound integrations use LumiNet routes per network module spec.
+
+const IPV4_RE = /^(?:\d{1,3}\.){3}\d{1,3}$/;
+
+function resolveRecord(item = {}) {
+  return item.raw ?? item;
+}
+
+function resolveIpv4(item = {}) {
+  const record = resolveRecord(item);
+  const candidates = [
+    record.assetIp,
+    record.ip,
+    record.ipAddress,
+    record.sourceIp,
+    record.source_ip,
+    item.ip,
+    item.assetIp,
+  ];
+
+  for (const value of candidates) {
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (IPV4_RE.test(trimmed)) return trimmed;
+    }
+  }
+
+  return null;
+}
+
+function resolveSeverity(item = {}) {
+  const record = resolveRecord(item);
+  const value = String(record.severity ?? item.severity ?? "medium").toLowerCase();
+  if (["low", "medium", "high", "critical"].includes(value)) return value;
+  if (value.includes("crit")) return "critical";
+  if (value.includes("high")) return "high";
+  if (value.includes("low")) return "low";
+  return "medium";
+}
+
+function resolveSourceId(source, item = {}) {
+  const record = resolveRecord(item);
+  const id = record._id ?? item._id ?? item.id;
+  if (id && !String(id).startsWith("mc-")) {
+    return String(id);
+  }
+
+  const ip = resolveIpv4(item);
+  const findingType = record.type ?? item.type ?? source;
+  return `luminet:${source}:${findingType}:${ip ?? "unknown"}:${Date.now()}`;
+}
+
+function resolveTitle(source, item = {}) {
+  const record = resolveRecord(item);
+  return (
+    record.title ??
+    item.title ??
+    record.type ??
+    item.type ??
+    `Network ${source} finding`
+  );
+}
+
+function resolveDescription(source, item = {}, title) {
+  const record = resolveRecord(item);
+  const ip = resolveIpv4(item);
+  const host =
+    record.hostname ??
+    item.hostname ??
+    record.asset ??
+    item.asset ??
+    ip ??
+    "unknown asset";
+
+  return (
+    record.description ??
+    item.description ??
+    record.summary ??
+    item.summary ??
+    `${title} detected on ${host} via LumiNet ${source}.`
+  );
+}
+
+function resolveHostLabel(item = {}) {
+  const record = resolveRecord(item);
+  return (
+    record.hostname ??
+    item.hostname ??
+    record.host ??
+    item.host ??
+    resolveIpv4(item) ??
+    "Unknown"
+  );
+}
 
 export async function sendToGrc(payload) {
-  const response = await apiClient.post("/api/grc/integrations/network/findings", payload);
+  const response = await luminetClient.post("/integrations/grc/finding", payload);
   return unwrapBackendBody(response.data);
 }
 
 export async function sendToSoar(payload) {
-  const response = await apiClient.post("/api/soar/incidents", payload);
+  const response = await luminetClient.post("/integrations/soar/incident", payload);
   return unwrapBackendBody(response.data);
 }
 
@@ -200,68 +323,81 @@ export async function sendToUctc(payload) {
 }
 
 export async function sendToSiem(payload) {
-  const response = await apiClient.post("/api/grc/integrations/siem/alerts", payload);
+  const response = await luminetClient.post("/integrations/siem/event", payload);
   return unwrapBackendBody(response.data);
 }
 
 export async function sendToOpenCti(payload) {
-  const response = await apiClient.post("/api/grc/integrations/opencti/ioc", payload);
+  const response = await luminetClient.post("/integrations/opencti/enrichment", payload);
   return unwrapBackendBody(response.data);
 }
 
 export function buildIntegrationPayload(source, item = {}) {
-  const base = {
-    source: "luminet",
-    module: source,
-    timestamp: new Date().toISOString(),
-    asset: item.asset ?? item.hostname ?? item.host ?? "Unknown",
-    ip: item.ip ?? item.ipAddress ?? "—",
-    severity: item.severity ?? "medium",
-    title: item.type ?? item.title ?? "Network finding",
-    description: item.description ?? item.summary ?? "",
-    metadata: item,
-  };
+  const record = resolveRecord(item);
+  const ip = resolveIpv4(item);
+  const severity = resolveSeverity(item);
+  const title = resolveTitle(source, item);
+  const description = resolveDescription(source, item, title);
+  const sourceId = resolveSourceId(source, item);
+  const findingType = record.type ?? item.type ?? source;
+  const hostLabel = resolveHostLabel(item);
+  const evidence = record.evidence ?? item.evidence;
 
-  return {
-    grc: {
-      title: base.title,
-      description: base.description || `Network finding detected on ${base.asset}`,
-      severity: base.severity,
-      asset: base.ip !== "—" ? base.ip : base.asset,
-      sourceId: item.id ?? item._id,
-      findingType: item.type ?? source,
-      tags: ["network", source].filter(Boolean),
-    },
-    soar: {
-      title: `[Network] ${base.title}`,
-      severity: base.severity,
-      description: base.description || `Network event detected on ${base.asset}`,
-      sourceIP: base.ip !== "—" ? base.ip : undefined,
-      affectedHost: base.asset,
-    },
-    uctc: {
-      gapType: item.gapType ?? "detection_coverage",
-      detectionRule: item.type ?? base.title,
-      affectedAsset: base.asset,
-      ip: base.ip,
-      ...base,
-    },
-    siem: {
-      alertId: item.alertId ?? `luminet-${source}-${item.id ?? item._id ?? Date.now()}`,
-      ruleName: base.title,
-      severity: base.severity,
-      sourceIp: base.ip,
-      destinationIp: item.destinationIp ?? item.destination_ip,
-      indexName: "luminet",
-    },
-    opencti: {
-      iocType: item.iocType ?? "ip",
-      indicator: base.ip !== "—" ? base.ip : base.asset,
-      confidence: item.confidence ?? 3,
-      description: base.description,
-      title: base.title,
+  const grc = {
+    title,
+    description,
+    severity,
+    sourceId,
+    findingType,
+    tags: ["network", source, findingType].filter(Boolean),
+  };
+  if (ip) grc.asset = ip;
+
+  const soar = {
+    title: `[Network] ${title}`,
+    description,
+    severity,
+    asset: hostLabel,
+    sourceId,
+    findingType,
+  };
+  if (ip) soar.sourceIp = ip;
+
+  const uctc = {
+    gapType: item.gapType ?? record.gapType ?? "missing-detection",
+    description: description.slice(0, 500),
+  };
+  if (ip) uctc.assetIp = ip;
+  if (record.assetMac ?? item.mac) {
+    uctc.assetMac = record.assetMac ?? item.mac;
+  }
+  if (evidence?.service ?? record.service) {
+    uctc.service = evidence?.service ?? record.service;
+  }
+  if (Number.isInteger(evidence?.port)) {
+    uctc.port = evidence.port;
+  }
+
+  const siem = {
+    eventType: "network_finding",
+    severity,
+    metadata: {
+      source,
+      title,
+      findingType,
+      host: hostLabel,
+      sourceId,
     },
   };
+  if (ip) siem.target = ip;
+  if (record.scanId ?? item.scanId ?? item.taskId) {
+    siem.scanId = String(record.scanId ?? item.scanId ?? item.taskId);
+  }
+
+  const opencti = {};
+  if (ip) opencti.ip = ip;
+
+  return { grc, soar, uctc, siem, opencti };
 }
 
 export default luminetClient;

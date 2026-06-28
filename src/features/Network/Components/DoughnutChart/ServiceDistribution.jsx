@@ -26,9 +26,9 @@ function buildFromResults(results = []) {
   }));
 }
 
-export default function ServiceDistribution({ results = [], protocols = null }) {
+export default function ServiceDistribution({ results = [], protocols = null, showDemoFallback = true }) {
   const services = useMemo(() => {
-    if (protocols && typeof protocols === "object") {
+    if (protocols && typeof protocols === "object" && Object.keys(protocols).length) {
       return Object.entries(protocols).map(([text, value], i) => ({
         text: resolveDisplayText(text, "Other"),
         value: Number(value) || 0,
@@ -36,10 +36,15 @@ export default function ServiceDistribution({ results = [], protocols = null }) 
       }));
     }
     if (results.length) return buildFromResults(results);
+    if (!showDemoFallback) return [];
     return DEFAULT_SERVICES;
-  }, [results, protocols]);
+  }, [results, protocols, showDemoFallback]);
 
   const total = services.reduce((sum, s) => sum + s.value, 0);
+
+  if (!services.length) {
+    return <p className="text-secondary mb-0">No open services detected.</p>;
+  }
 
   return (
     <div className="service-card">

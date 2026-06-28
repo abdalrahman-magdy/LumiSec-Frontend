@@ -10,9 +10,11 @@ import NetworkAlert from "../Components/Shared/NetworkAlert";
 import ScanProgress from "../Components/Shared/ScanProgress";
 import MisconfigurationsTabel from "../Components/MisconfigurationsTabel/MisconfigurationsTabel";
 import useNetworkDiscovery from "../hooks/useNetworkDiscovery";
+import useNetworkPermissions from "../hooks/useNetworkPermissions";
 
 export default function NetworkDiscovery() {
   const { setTitle } = useOutletContext();
+  const { canRunNetwork } = useNetworkPermissions();
   const {
     hosts,
     subnets,
@@ -42,7 +44,7 @@ export default function NetworkDiscovery() {
     <>
       <NetworkAlert error={error} onRetry={() => runDiscovery({ subnet: "192.168.1.0/24" })} />
 
-      <ScanConfiguration onScan={runDiscovery} loading={loading} />
+      <ScanConfiguration onScan={runDiscovery} loading={loading} disabled={!canRunNetwork} />
       <ScanProgress progress={progress} status="Discovering network hosts..." active={scanning || loading} />
 
       {subnets.length > 0 && (

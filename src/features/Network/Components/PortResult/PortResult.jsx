@@ -10,11 +10,17 @@ function riskClass(score) {
   return "";
 }
 
-export default function PortResult({ results = [], loading = false, target = "—" }) {
+export default function PortResult({ results = [], loading = false, target = "—", scanned = false }) {
   if (loading) return <NetworkLoading skeleton rows={5} />;
 
   if (!results.length) {
-    return <p className="text-secondary p-3 mb-0">No port scan results. Run a scan to begin.</p>;
+    return (
+      <p className="text-secondary p-3 mb-0">
+        {scanned
+          ? "Scan completed — no open ports were detected on the requested target."
+          : "No port scan results. Run a scan to begin."}
+      </p>
+    );
   }
 
   const targetLabel = resolveDisplayText(target, "—");

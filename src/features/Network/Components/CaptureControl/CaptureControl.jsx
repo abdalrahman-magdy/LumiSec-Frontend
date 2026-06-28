@@ -6,6 +6,8 @@ export default function CaptureControl({
   onStop,
   loading = false,
   active = false,
+  captureComplete = false,
+  disabled = false,
 }) {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,10 +18,13 @@ export default function CaptureControl({
     }
     onStart?.({
       interface: form.interface.value,
-      duration: Number(form.duration.value) || 60,
-      bpfFilter: form.bpfFilter.value,
+      duration_sec: Number(form.duration.value) || 60,
+      filter: form.bpfFilter.value || "ip",
     });
   };
+
+  const statusLabel = active ? "Capturing" : captureComplete ? "Completed" : "Stopped";
+  const statusClass = active ? "btn-success" : captureComplete ? "btn-info text-white" : "btn-secondary text-white";
 
   return (
     <div className="dashboard-card mb-3">
@@ -34,7 +39,7 @@ export default function CaptureControl({
         <div className="row justify-content-between align-items-center mb-3">
           <div className="col">
             <label htmlFor="interface" className="d-block mb-1">Interface</label>
-            <select name="interface" id="interface" className="form-select ScanType-select border-0" defaultValue="eth0">
+            <select name="interface" id="interface" className="form-select ScanType-select border-0" defaultValue="eth0" disabled={disabled}>
               <option value="eth0">eth0</option>
               <option value="eth1">eth1</option>
               <option value="wlan0">wlan0</option>
@@ -66,15 +71,15 @@ export default function CaptureControl({
 
           <div className="col">
             <label className="d-block mb-1">Status</label>
-            <button type="button" className={`btn border-0 w-100 ${active ? "btn-success" : "btn-secondary text-white"}`}>
-              {active ? "Capturing" : "Stopped"}
+            <button type="button" className={`btn border-0 w-100 ${statusClass}`}>
+              {statusLabel}
             </button>
           </div>
 
           <div className="col">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || disabled}
               className={`btn border-0 rounded-3 text-white fw-medium me-3 ps-0 d-flex justify-content-between align-items-center mt-4 ${active ? "btn-danger" : "start-btn"}`}
             >
               {loading ? (

@@ -8,6 +8,7 @@ export {
   getAssetContext,
   startSniffing,
   getLiveStream,
+  resolveMisconfiguration,
   sendToGrc,
   sendToSoar,
   sendToUctc,

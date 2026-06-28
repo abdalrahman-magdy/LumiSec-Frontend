@@ -8,12 +8,16 @@ import SeverityDistributionChart from "../Components/SeverityDistributionChart/S
 import UrgentRecommendations from "../Components/UrgentRecommendations/UrgentRecommendations";
 import NetworkAlert from "../Components/Shared/NetworkAlert";
 import NetworkLoading from "../Components/Shared/NetworkLoading";
+import NetworkPagination from "../Components/Shared/NetworkPagination";
 import useMisconfigurations from "../hooks/useMisconfigurations";
 
 export default function Misconfigurations() {
   const { setTitle } = useOutletContext();
   const {
     items,
+    pagination,
+    page,
+    setPage,
     severityCounts,
     recommendations,
     loading,
@@ -21,6 +25,8 @@ export default function Misconfigurations() {
     severityFilter,
     setSeverityFilter,
     reload,
+    resolveItem,
+    resolvingId,
   } = useMisconfigurations();
 
   useEffect(() => {
@@ -70,7 +76,7 @@ export default function Misconfigurations() {
                 <figure className="mb-0 me-2">
                   <img src={SettingsIcon} alt="misconfig" />
                 </figure>
-                <h6 className="text-white mb-0">Active Misconfigurations ({items.length})</h6>
+                <h6 className="text-white mb-0">Active Misconfigurations ({pagination.total || items.length})</h6>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <select
@@ -89,7 +95,19 @@ export default function Misconfigurations() {
                 </button>
               </div>
             </div>
-            <MisconfigurationsTabel items={items} loading={loading} />
+            <MisconfigurationsTabel
+              items={items}
+              loading={loading}
+              onResolve={resolveItem}
+              resolvingId={resolvingId}
+            />
+            <NetworkPagination
+              page={pagination.page ?? page}
+              pages={pagination.pages ?? 1}
+              total={pagination.total ?? 0}
+              onPageChange={setPage}
+              disabled={loading}
+            />
           </div>
         </div>
 

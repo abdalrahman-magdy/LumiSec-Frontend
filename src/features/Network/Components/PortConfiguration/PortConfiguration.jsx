@@ -3,7 +3,7 @@ import circleIcon from "../../../../assets/◎.png";
 import { SCAN_MODE_OPTIONS } from "../../utils/portScan";
 import "./PortConfiguration.css";
 
-export default function PortConfiguration({ onScan, loading = false, defaults = {} }) {
+export default function PortConfiguration({ onScan, loading = false, defaults = {}, disabled = false }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -35,6 +35,7 @@ export default function PortConfiguration({ onScan, loading = false, defaults = 
               defaultValue={defaults.target ?? "192.168.1.45"}
               placeholder="192.168.1.45"
               required
+              disabled={disabled}
             />
           </div>
 
@@ -48,6 +49,7 @@ export default function PortConfiguration({ onScan, loading = false, defaults = 
               defaultValue={defaults.ports ?? "22,80,443"}
               placeholder="22,80,443"
               required
+              disabled={disabled}
             />
           </div>
 
@@ -58,6 +60,7 @@ export default function PortConfiguration({ onScan, loading = false, defaults = 
               id="scanMode"
               className="form-select ScanType-select border-0"
               defaultValue={defaults.scanMode ?? "CONNECT"}
+              disabled={disabled}
             >
               {SCAN_MODE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -70,7 +73,7 @@ export default function PortConfiguration({ onScan, loading = false, defaults = 
           <div className="col">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || disabled}
               className="btn start-btn border-0 rounded-3 text-black fw-medium me-3 ps-0 d-flex justify-content-between align-items-center mt-4"
             >
               {loading ? (

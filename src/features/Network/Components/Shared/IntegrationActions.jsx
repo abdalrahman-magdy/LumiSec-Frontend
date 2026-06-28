@@ -7,6 +7,7 @@ import {
   sendToSoar,
   sendToUctc,
 } from "../../services/networkApi";
+import useNetworkPermissions from "../../hooks/useNetworkPermissions";
 import "./NetworkShared.css";
 
 const ACTIONS = [
@@ -14,19 +15,28 @@ const ACTIONS = [
   { key: "soar", label: "Create Incident", icon: "fa-triangle-exclamation", className: "integration-btn-soar", fn: sendToSoar },
   { key: "siem", label: "Send to SIEM", icon: "fa-server", className: "integration-btn-siem", fn: sendToSiem },
   { key: "opencti", label: "Enrich IOC", icon: "fa-magnifying-glass", className: "integration-btn-cti", fn: sendToOpenCti },
-  { key: "uctc", label: "UCTC Gap", icon: "fa-shield-halved", className: "integration-btn-cti", fn: sendToUctc },
+  { key: "uctc", label: "UCTC Gap", icon: "fa-shield-halved", className: "integration-btn-uctc", fn: sendToUctc },
 ];
 
 export default function IntegrationActions({ item, source = "network", compact = false, onSuccess }) {
+  const { canIntegrate } = useNetworkPermissions();
   const [loadingKey, setLoadingKey] = useState(null);
   const [feedback, setFeedback] = useState(null);
+
+  if (!canIntegrate) return null;
 
   const handleAction = async (action) => {
     setLoadingKey(action.key);
     setFeedback(null);
     try {
       const payloads = buildIntegrationPayload(source, item);
-      await action.fn(payloads[action.key]);
+      const payload = payloads[action.key];
+
+      if (action.key === "opencti" && !payload?.ip) {
+        throw new Error("OpenCTI enrichment requires a valid IPv4 address for this item.");
+      }
+
+      await action.fn(payload);
       const msg = `${action.label} succeeded`;
       setFeedback({ type: "success", text: msg });
       onSuccess?.(action.key, item);
@@ -54,7 +64,7 @@ export default function IntegrationActions({ item, source = "network", compact =
           <button
             key={action.key}
             type="button"
-            className={`btn integration-btn ${action.className}`}
+            className={`integration-btn ${action.className}`}
             disabled={loadingKey !== null}
             onClick={() => handleAction(action)}
           >

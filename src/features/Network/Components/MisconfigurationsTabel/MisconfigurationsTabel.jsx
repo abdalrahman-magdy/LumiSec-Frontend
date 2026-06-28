@@ -3,6 +3,7 @@ import "./MisconfigurationsTabel.css";
 import IntegrationActions from "../Shared/IntegrationActions";
 import NetworkLoading from "../Shared/NetworkLoading";
 import { resolveDisplayText } from "../../utils/normalizers";
+import useNetworkPermissions from "../../hooks/useNetworkPermissions";
 
 function severityClass(severity) {
   if (severity === "critical") return "critical";
@@ -11,7 +12,18 @@ function severityClass(severity) {
   return "";
 }
 
-export default function MisconfigurationsTabel({ items = [], loading = false }) {
+function isClosedStatus(status) {
+  return ["fixed", "resolved", "accepted"].includes(status);
+}
+
+export default function MisconfigurationsTabel({
+  items = [],
+  loading = false,
+  onResolve,
+  resolvingId = null,
+}) {
+  const { canRunNetwork, canIntegrate } = useNetworkPermissions();
+
   if (loading) return <NetworkLoading skeleton rows={5} />;
 
   if (!items.length) {
@@ -50,20 +62,33 @@ export default function MisconfigurationsTabel({ items = [], loading = false }) 
                 <p className="mb-2 description">{resolveDisplayText(item.description)}</p>
               </td>
               <td>
-                <p className={`mb-2 rounded-5 w-fit-content text-capitalize ${item.status === "fixed" ? "fixed" : "critical"}`}>
+                <p className={`mb-2 rounded-5 w-fit-content text-capitalize ${isClosedStatus(item.status) ? "fixed" : "critical"}`}>
                   {item.status}
                 </p>
               </td>
               <td>
-                {item.status === "fixed" ? (
+                {isClosedStatus(item.status) ? (
                   <i className="fa-solid fa-circle-check fixed-icon fs-5" />
                 ) : (
                   <div>
-                    <button type="button" className="btn mb-2 fix rounded-3 text-white">
-                      <i className="fa-solid fa-wrench text-white me-1" />
-                      Fix
-                    </button>
-                    <IntegrationActions item={item} source="misconfigurations" compact />
+                    {canRunNetwork && (
+                      <button
+                        type="button"
+                        className="btn mb-2 fix rounded-3 text-white"
+                        disabled={resolvingId === item.id}
+                        onClick={() => onResolve?.(item)}
+                      >
+                        {resolvingId === item.id ? (
+                          <i className="fa-solid fa-spinner fa-spin me-1" />
+                        ) : (
+                          <i className="fa-solid fa-wrench text-white me-1" />
+                        )}
+                        Mark Resolved
+                      </button>
+                    )}
+                    {canIntegrate && (
+                      <IntegrationActions item={item} source="misconfigurations" compact />
+                    )}
                   </div>
                 )}
               </td>

@@ -87,6 +87,6 @@ export function buildNetworkScanPayload({ target, ports, scanMode }) {
   return {
     target: trimmedTarget,
     ports: portList.join(","),
-    type: mode,
+    scanMode: mode,
   };
 }

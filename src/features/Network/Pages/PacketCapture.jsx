@@ -3,33 +3,22 @@ import { useOutletContext } from "react-router-dom";
 import CaptureControl from "../Components/CaptureControl/CaptureControl";
 import DashboardCard2 from "../Components/DashboardCard2/DashboardCard2";
 import LivePacketStream from "../Components/LivePacketStream/LivePacketStream";
-import DashboardPieChart from "../../SOAR/Components/DashboardPieChart/DashboardPieChart";
+import ServiceDistribution from "../Components/DoughnutChart/ServiceDistribution";
 import NetworkAlert from "../Components/Shared/NetworkAlert";
 import usePacketSniffing from "../hooks/usePacketSniffing";
+import useNetworkPermissions from "../hooks/useNetworkPermissions";
 import { formatNumber } from "../utils/normalizers";
 
 export default function PacketCapture() {
   const { setTitle } = useOutletContext();
-  const { stream, loading, error, active, startCapture, stopCapture } = usePacketSniffing();
+  const { canSniffTraffic } = useNetworkPermissions();
+  const { stream, loading, error, active, captureComplete, startCapture, stopCapture } = usePacketSniffing();
 
   useEffect(() => {
     setTitle("Packet Capture");
   }, [setTitle]);
 
-  const protocolChartData = useMemo(() => {
-    const protocols = stream?.protocols ?? {};
-    const entries = Object.entries(protocols);
-    if (!entries.length) return null;
-    return {
-      labels: entries.map(([k]) => k),
-      datasets: [
-        {
-          data: entries.map(([, v]) => v),
-          backgroundColor: ["#06b6d4", "#22c55e", "#eab308", "#A5B4FC", "#ef4444", "#f97316"],
-        },
-      ],
-    };
-  }, [stream]);
+  const protocolCounts = useMemo(() => stream?.protocols ?? {}, [stream]);
 
   return (
     <>
@@ -40,6 +29,8 @@ export default function PacketCapture() {
         onStop={stopCapture}
         loading={loading}
         active={active}
+        captureComplete={captureComplete}
+        disabled={!canSniffTraffic}
       />
 
       <div className="row align-items-center justify-content-around">
@@ -52,26 +43,20 @@ export default function PacketCapture() {
       <div className="row g-3 justify-content-between align-items-stretch mb-4 mb-lg-5 p-3">
         <div className="col-12 col-lg-8 ps-0">
           <div className="dashboard-card h-100 p-3 rounded-4 overflow-hidden">
-            <LivePacketStream packets={stream?.packets ?? []} active={active} />
+            <LivePacketStream
+              packets={stream?.packets ?? []}
+              active={active}
+              captureComplete={captureComplete}
+            />
           </div>
         </div>
         <div className="col-12 col-lg-4">
           <div className="dashboard-card h-100 p-3 rounded-4">
             <h6 className="text-white mb-3">Protocol Breakdown</h6>
-            {protocolChartData ? (
-              <DashboardPieChart />
+            {Object.keys(protocolCounts).length ? (
+              <ServiceDistribution protocols={protocolCounts} />
             ) : (
               <p className="text-secondary">Start capture to view protocol distribution.</p>
-            )}
-            {stream?.protocols && (
-              <ul className="list-unstyled text-secondary mt-3 mb-0">
-                {Object.entries(stream.protocols).map(([proto, count]) => (
-                  <li key={proto} className="d-flex justify-content-between mb-1">
-                    <span>{proto}</span>
-                    <span className="text-white">{count}%</span>
-                  </li>
-                ))}
-              </ul>
             )}
           </div>
         </div>

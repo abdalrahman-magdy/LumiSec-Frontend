@@ -10,7 +10,7 @@ function protocolClass(protocol) {
   return "";
 }
 
-export default function LivePacketStream({ packets = [], active = false }) {
+export default function LivePacketStream({ packets = [], active = false, captureComplete = false }) {
   const terminalRef = useRef(null);
 
   useEffect(() => {
@@ -34,6 +34,11 @@ export default function LivePacketStream({ packets = [], active = false }) {
             LIVE
           </span>
         )}
+        {!active && captureComplete && (
+          <span className="badge rounded-pill" style={{ background: "#539BFF" }}>
+            COMPLETE
+          </span>
+        )}
       </div>
       <div className="packet-terminal h-100" ref={terminalRef}>
         {!packets.length && (
@@ -44,7 +49,7 @@ export default function LivePacketStream({ packets = [], active = false }) {
         {packets.map((pkt) => (
           <div
             key={`${pkt.id}-${pkt.timestamp}`}
-            className={`packet-line ${pkt.summary?.toLowerCase().includes("suspicious") ? "packet-line-suspicious" : ""}`}
+            className={`packet-line ${pkt.suspicious || pkt.summary?.toLowerCase().includes("suspicious") ? "packet-line-suspicious" : ""}`}
           >
             <span className="text-secondary me-2">{String(pkt.id).padStart(4, "0")}</span>
             <span className="text-secondary me-2">{pkt.timestamp}</span>

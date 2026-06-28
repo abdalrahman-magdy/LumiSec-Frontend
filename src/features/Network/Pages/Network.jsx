@@ -19,6 +19,12 @@ export default function Network() {
 
     const [collapsed, setCollapsed] = useState(false)
     const [title, setTitle] = useState(null)
+    const todayLabel = new Date().toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    })
 
 
     return (
@@ -80,7 +86,7 @@ export default function Network() {
                             <div className='d-flex justify-content-between align-items-center'>
 
                                 <p className='threate mb-0 rounded-3 me-3'><Shield size={25} className='pe-1' style={{color: "#06B6D4"}} />Threat Level: <span className='network-high fw-medium border-0'>High</span></p>
-                                <p className=' mb-0 date'>Saturday, June 6, 2026</p>
+                                <p className=' mb-0 date'>{todayLabel}</p>
 
                             </div>
                         </div>

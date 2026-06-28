@@ -2,15 +2,11 @@ import React from "react";
 import codeIcon from "../../../../assets/⟨⟩.png";
 import "./ScanConfiguration.css";
 
-export default function ScanConfiguration({ onScan, loading = false, defaults = {} }) {
+export default function ScanConfiguration({ onScan, loading = false, defaults = {}, disabled = false }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
-    onScan?.({
-      subnet: form.subnet.value,
-      scanType: form.scanType.value,
-      timeout: Number(form.timeout.value) || 5000,
-    });
+    onScan?.({ subnet: form.subnet.value.trim() });
   };
 
   return (
@@ -24,8 +20,8 @@ export default function ScanConfiguration({ onScan, loading = false, defaults = 
 
       <form onSubmit={handleSubmit}>
         <div className="row justify-content-between align-items-center mb-3">
-          <div className="col-3">
-            <label htmlFor="subnet" className="d-block">Subnet</label>
+          <div className="col-8">
+            <label htmlFor="subnet" className="d-block">Subnet (CIDR)</label>
             <input
               type="text"
               className="form-control border-0"
@@ -34,34 +30,17 @@ export default function ScanConfiguration({ onScan, loading = false, defaults = 
               defaultValue={defaults.subnet ?? "192.168.1.0/24"}
               placeholder="192.168.1.0/24"
               required
+              disabled={disabled}
             />
+            <small className="text-secondary">
+              Discovery uses ICMP/TCP probes configured on the backend scan mode.
+            </small>
           </div>
 
-          <div className="col-3">
-            <label htmlFor="scanType" className="d-block">Scan Type</label>
-            <select name="scanType" id="scanType" className="form-select scanType-select border-0" defaultValue="both">
-              <option value="both">Both</option>
-              <option value="arp">ARP</option>
-              <option value="icmp">ICMP</option>
-            </select>
-          </div>
-
-          <div className="col-3">
-            <label htmlFor="timeout" className="d-block">Timeout (ms)</label>
-            <input
-              type="number"
-              className="form-control border-0"
-              id="timeout"
-              name="timeout"
-              defaultValue={defaults.timeout ?? 5000}
-              placeholder="5000"
-            />
-          </div>
-
-          <div className="col-3">
+          <div className="col-4">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || disabled}
               className="btn start-btn border-0 rounded-3 text-black fw-medium me-3 ps-0 d-flex justify-content-between align-items-center mt-4"
             >
               {loading ? (

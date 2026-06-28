@@ -2,12 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAssetContext, getAssetDetails, getAssetInventory } from "../services/networkApi";
 import { toNetworkError } from "../utils/apiErrors";
 
+const PAGE_SIZE = 20;
+
 export default function useAssetInventory() {
   const [assets, setAssets] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0, limit: PAGE_SIZE });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [page, setPage] = useState(1);
 
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [assetDetails, setAssetDetails] = useState(null);
@@ -22,33 +26,30 @@ export default function useAssetInventory() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAssetInventory();
-      setAssets(data);
+      const params = { page, limit: PAGE_SIZE };
+      if (search.trim()) params.search = search.trim();
+
+      const result = await getAssetInventory(params);
+      setAssets(result.items);
+      setPagination(result.pagination);
     } catch (err) {
       setError(toNetworkError(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, search]);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
   const filteredAssets = useMemo(() => {
-    return assets.filter((a) => {
-      const q = search.toLowerCase();
-      const matchesSearch =
-        !q ||
-        a.ip.toLowerCase().includes(q) ||
-        a.hostname.toLowerCase().includes(q) ||
-        a.mac.toLowerCase().includes(q) ||
-        a.osGuess.toLowerCase().includes(q);
-      const matchesCategory =
-        categoryFilter === "all" || a.category === categoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [assets, search, categoryFilter]);
+    return assets.filter((a) => categoryFilter === "all" || a.category === categoryFilter);
+  }, [assets, categoryFilter]);
 
   const openDetails = useCallback(async (asset) => {
     setSelectedAsset(asset);
@@ -58,7 +59,11 @@ export default function useAssetInventory() {
       const data = await getAssetDetails(asset.mac);
       setAssetDetails(data);
     } catch (err) {
-      setAssetDetails({ ...asset, error: toNetworkError(err).message });
+      setAssetDetails({
+        asset,
+        misconfigurations: [],
+        error: toNetworkError(err).message,
+      });
     } finally {
       setDetailsLoading(false);
     }
@@ -93,6 +98,9 @@ export default function useAssetInventory() {
   return {
     assets: filteredAssets,
     allAssets: assets,
+    pagination,
+    page,
+    setPage,
     loading,
     error,
     search,
@@ -113,3 +121,4 @@ export default function useAssetInventory() {
     closeContext,
   };
 }
+
