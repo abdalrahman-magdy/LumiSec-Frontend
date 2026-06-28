@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import analysisIcon from "../../../../assets/Overlay (6).png";
 import sendIcon from "../../../../assets/Container.png";
@@ -21,7 +21,12 @@ import "../../Pages/PhishingDashboard.css";
 export default function Overview() {
   const { data, loading, error, isMock, reload } = useDashboardOverview();
   const { data: trends } = useDashboardTrends();
-  const { campaigns } = useCampaigns();
+  const { campaigns, reload: reloadCampaigns } = useCampaigns();
+
+  useEffect(() => {
+    const interval = setInterval(() => reloadCampaigns(), 5000);
+    return () => clearInterval(interval);
+  }, [reloadCampaigns]);
 
   if (loading && !data) return <PhishingLoading message="Loading phishing overview..." skeleton rows={4} />;
 

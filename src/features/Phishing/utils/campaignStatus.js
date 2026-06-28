@@ -61,6 +61,21 @@ export function canDeleteCampaign(status) {
   ].includes(s);
 }
 
+/** Pending, unsent recipients can be removed from draft/scheduled/running/paused/cancelled campaigns */
+export function canRemoveRecipient(recipient, campaignStatus) {
+  const rStatus = (recipient?.status ?? "pending").toLowerCase();
+  const emailSent = recipient?.emailSent === true || recipient?.raw?.emailSent === true;
+  if (emailSent || rStatus !== "pending") return false;
+  const cStatus = normalizeCampaignStatus(campaignStatus);
+  return [
+    CAMPAIGN_STATUS.DRAFT,
+    CAMPAIGN_STATUS.SCHEDULED,
+    CAMPAIGN_STATUS.RUNNING,
+    CAMPAIGN_STATUS.PAUSED,
+    CAMPAIGN_STATUS.CANCELLED,
+  ].includes(cStatus);
+}
+
 export function extractCampaignId(data) {
   if (!data) return null;
   return data.id ?? data._id ?? data.raw?._id ?? null;

@@ -210,6 +210,7 @@ export function normalizeRecipient(raw = {}, i = 0) {
     name: raw.name ?? raw.fullName ?? "",
     department: raw.department ?? "General",
     status,
+    emailSent: raw.emailSent === true,
     valid: raw.valid !== false && raw.isValid !== false && Boolean(raw.email?.includes("@")),
     raw,
   };

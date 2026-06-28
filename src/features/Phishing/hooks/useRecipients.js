@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   deleteRecipient,
   importRecipientsCsv,
+  importRecipientsManual,
   listRecipients,
   updateRecipient,
 } from "../services/phishingApi";
@@ -40,6 +41,12 @@ export default function useRecipients() {
     return res;
   };
 
+  const addManual = async (recipient, campaignId) => {
+    const res = await importRecipientsManual([recipient], campaignId);
+    await load();
+    return res;
+  };
+
   return {
     recipients: filtered,
     allRecipients: recipients,
@@ -50,6 +57,7 @@ export default function useRecipients() {
     setSearch,
     reload: load,
     importCsv,
+    addManual,
     updateRecipient,
     deleteRecipient,
   };

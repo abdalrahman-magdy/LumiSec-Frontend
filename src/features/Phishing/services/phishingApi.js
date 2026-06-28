@@ -225,6 +225,16 @@ export const importRecipientsCsv = async (file, campaignId) => {
   ).then((r) => ({ ...r, data: normalizeImportResult(r.data) }));
 };
 
+export const importRecipientsManual = (recipients, campaignId) => {
+  const list = (Array.isArray(recipients) ? recipients : [recipients]).map(toRecipientAttachPayload);
+  const body = compactPayload({ campaignId, recipients: list });
+  return mutate(
+    () => phishingClient.post("/recipients/import", body),
+    () => normalizeImportResult({ imported: list.length, recipients: [] }),
+    "importRecipientsManual"
+  ).then((r) => ({ ...r, data: normalizeImportResult(r.data) }));
+};
+
 // ─── CAMPAIGNS ───────────────────────────────────────────────────
 
 export const listCampaigns = (params) =>
@@ -282,6 +292,7 @@ export const attachCampaignRecipients = (id, recipients) => {
     ...r,
     data: {
       added: Number(r.data?.added ?? list.length),
+      queued: Number(r.data?.queued ?? 0),
       recipients: r.data?.recipients ?? [],
     },
   }));
@@ -404,6 +415,32 @@ export function triggerBrowserDownload(blobData, filename) {
   anchor.click();
   window.URL.revokeObjectURL(url);
 }
+
+// ─── SETTINGS ────────────────────────────────────────────────────
+
+const MOCK_SETTINGS = {
+  fromAddress: "LumiSec <security@lumisec.io>",
+  source: "default",
+  smtpConfigured: false,
+  trackingDomain: "http://localhost:3000/api/phishing",
+  trackingDomainSource: "default",
+  openTrackingEnabled: true,
+  trackingDomainIsLocal: true,
+  updatedAt: null,
+};
+
+export const getPhishingSettings = () =>
+  withMock(() => phishingClient.get("/settings"), MOCK_SETTINGS, "settings");
+
+export const updatePhishingSettings = (payload) =>
+  mutate(
+    () => phishingClient.patch("/settings", {
+      ...compactPayload({ fromAddress: cleanText(payload.fromAddress) }),
+      trackingDomain: cleanText(payload.trackingDomain) || null,
+    }),
+    () => ({ ...MOCK_SETTINGS, ...payload, source: "database", trackingDomainSource: "database", updatedAt: new Date().toISOString() }),
+    "update-settings"
+  );
 
 // ─── INTEGRATIONS ────────────────────────────────────────────────
 

@@ -76,10 +76,16 @@ export default function RecipientsList() {
           </p>
         </div>
         <RoleGate allow={canManageRecipients}>
-          <Link to="/Phishing/Recipients/import" className="btn add-btn text-white border-0">
-            <i className="fa-solid fa-file-csv me-2" />
-            Import CSV
-          </Link>
+          <div className="phishing-segment-group">
+            <Link to="/Phishing/Recipients/import" className="btn btn-sm phishing-outline-btn">
+              <i className="fa-solid fa-user-plus me-2" />
+              Add manually
+            </Link>
+            <Link to="/Phishing/Recipients/import?mode=csv" className="btn btn-sm phishing-outline-btn">
+              <i className="fa-solid fa-file-csv me-2" />
+              Import CSV
+            </Link>
+          </div>
         </RoleGate>
       </div>
       <PhishingAlert type="danger" message={error} isMock={isMock} onRetry={reload} />
@@ -99,7 +105,11 @@ export default function RecipientsList() {
           No recipients yet.{" "}
           <RoleGate allow={canManageRecipients}>
             <Link to="/Phishing/Recipients/import" className="text-white">
-              Import a CSV
+              Add manually
+            </Link>
+            {" "}or{" "}
+            <Link to="/Phishing/Recipients/import?mode=csv" className="text-white">
+              import CSV
             </Link>
           </RoleGate>{" "}
           to get started.
@@ -129,13 +139,22 @@ export default function RecipientsList() {
                   <td>{statusBadge(r.status)}</td>
                   <td>
                     <RoleGate allow={canDeleteRecipients}>
-                      <button
-                        type="button"
-                        className="btn btn-sm phishing-delete-btn"
-                        onClick={() => setPendingDelete(r)}
-                      >
-                        Delete
-                      </button>
+                      {r.emailSent || (r.status && r.status !== "pending") ? (
+                        <span
+                          className="text-secondary small"
+                          title="Cannot delete after email has been sent"
+                        >
+                          —
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-sm phishing-delete-btn"
+                          onClick={() => setPendingDelete(r)}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </RoleGate>
                   </td>
                 </tr>

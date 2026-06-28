@@ -110,3 +110,7 @@ export function canUseIntegrations(role = getPhishingRole()) {
 export function canViewTracking(role = getPhishingRole()) {
   return hasRole(role, VIEW_REPORT_ROLES);
 }
+
+export function canManageSettings(role = getPhishingRole()) {
+  return hasRole(role, MANAGE_CAMPAIGN_ROLES);
+}

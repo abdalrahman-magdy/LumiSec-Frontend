@@ -5,20 +5,14 @@ import PhishingConfirmModal from "../../Components/Shared/PhishingConfirmModal";
 import PhishingLoading from "../../Components/Shared/PhishingLoading";
 import RoleGate from "../../Components/Shared/RoleGate";
 import { canCreateCampaigns, canDeleteRecipients, canManageCampaigns } from "../../utils/roles";
-import { canEditCampaignMetadata } from "../../utils/campaignStatus";
-import { updateCampaign, attachCampaignRecipients } from "../../services/phishingApi";
+import { canEditCampaignMetadata, canRemoveRecipient } from "../../utils/campaignStatus";
+import ManualRecipientForm from "../../Components/Shared/ManualRecipientForm";
+import { attachCampaignRecipients, updateCampaign } from "../../services/phishingApi";
 import useCampaignRecipients from "../../hooks/useCampaignRecipients";
 import useRecipients from "../../hooks/useRecipients";
 import useTemplates from "../../hooks/useTemplates";
 import useLandingPages from "../../hooks/useLandingPages";
 import "../../Components/Shared/PhishingShared.css";
-
-function canRemoveRecipient(recipient, campaignStatus) {
-  const rStatus = (recipient.status ?? "pending").toLowerCase();
-  const cStatus = (campaignStatus ?? "draft").toLowerCase();
-  if (rStatus !== "pending") return false;
-  return ["draft", "scheduled", "paused", "cancelled"].includes(cStatus);
-}
 
 export default function CampaignManagePanel({ campaign, onUpdated }) {
   const campaignId = campaign?.id;
@@ -42,12 +36,14 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
 
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [addMode, setAddMode] = useState("manual");
   const [form, setForm] = useState({
     name: campaign?.name ?? "",
     templateId: campaign?.templateId ?? "",
     landingPageId: campaign?.landingPageId ?? "",
   });
   const [selectedToAdd, setSelectedToAdd] = useState([]);
+  const [selectedToRemove, setSelectedToRemove] = useState([]);
   const [pendingRemove, setPendingRemove] = useState(null);
   const [removing, setRemoving] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -72,6 +68,25 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
     () => allRecipients.filter((r) => !campaignEmails.has(r.email.toLowerCase())),
     [allRecipients, campaignEmails]
   );
+
+  const removableRecipients = useMemo(
+    () => campaignRecipients.filter((r) => canRemoveRecipient(r, status)),
+    [campaignRecipients, status]
+  );
+
+  const toggleRemoveSelection = (id) => {
+    setSelectedToRemove((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleRemoveAll = () => {
+    if (selectedToRemove.length === removableRecipients.length) {
+      setSelectedToRemove([]);
+    } else {
+      setSelectedToRemove(removableRecipients.map((r) => r.id));
+    }
+  };
 
   const toggleAdd = (id) => {
     setSelectedToAdd((prev) =>
@@ -105,6 +120,37 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
     }
   };
 
+  const handleAddManualRecipient = async (recipient) => {
+    if (campaignEmails.has(recipient.email.toLowerCase())) {
+      setError(`${recipient.email} is already on this campaign.`);
+      return;
+    }
+    setAdding(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await attachCampaignRecipients(campaignId, [recipient]);
+      const added = res.data?.added ?? 1;
+      const queued = res.data?.queued ?? 0;
+      if (!added) {
+        setError(`${recipient.email} is already on this campaign.`);
+        return;
+      }
+      setSuccess(
+        queued
+          ? `Added ${recipient.email} — email queued for delivery.`
+          : `Added ${recipient.email} to the campaign.`
+      );
+      await reloadRecipients();
+      await onUpdated?.();
+      clearFeedback();
+    } catch (err) {
+      setError(err.message ?? "Could not add recipient.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
   const handleAddRecipients = async () => {
     if (!selectedToAdd.length) {
       setError("Select at least one recipient to add.");
@@ -126,8 +172,13 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
         setError("Selected recipients are already on this campaign.");
         return;
       }
-      await attachCampaignRecipients(campaignId, toAttach);
-      setSuccess(`Added ${toAttach.length} recipient${toAttach.length === 1 ? "" : "s"} to the campaign.`);
+      const res = await attachCampaignRecipients(campaignId, toAttach);
+      const queued = res.data?.queued ?? 0;
+      setSuccess(
+        queued
+          ? `Added ${toAttach.length} recipient${toAttach.length === 1 ? "" : "s"} — ${queued} email${queued === 1 ? "" : "s"} queued for delivery.`
+          : `Added ${toAttach.length} recipient${toAttach.length === 1 ? "" : "s"} to the campaign.`
+      );
       setSelectedToAdd([]);
       setAddOpen(false);
       await reloadRecipients();
@@ -142,12 +193,19 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
 
   const confirmRemove = async () => {
     if (!pendingRemove) return;
+    const targets = Array.isArray(pendingRemove) ? pendingRemove : [pendingRemove];
     setRemoving(true);
     setError(null);
     try {
-      await removeRecipient(pendingRemove.id);
-      setSuccess(`Removed ${pendingRemove.email} from the campaign.`);
+      for (const recipient of targets) {
+        await removeRecipient(recipient.id);
+      }
+      const label = targets.length === 1
+        ? targets[0].email
+        : `${targets.length} recipients`;
+      setSuccess(`Removed ${label} from the campaign.`);
       setPendingRemove(null);
+      setSelectedToRemove([]);
       await onUpdated?.();
       clearFeedback();
     } catch (err) {
@@ -155,6 +213,12 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
     } finally {
       setRemoving(false);
     }
+  };
+
+  const startBulkRemove = () => {
+    const targets = campaignRecipients.filter((r) => selectedToRemove.includes(r.id));
+    if (!targets.length) return;
+    setPendingRemove(targets);
   };
 
   if (!canEditMeta && !canManageRecipients) return null;
@@ -251,50 +315,109 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
 
       {addOpen && canManageRecipients && (
         <div className="border-top border-secondary pt-3 mb-3">
-          <p className="text-secondary small mb-2">
-            Select recipients from the global pool to attach to this campaign.
-            {" "}
-            <Link to={`/Phishing/Recipients/import?campaignId=${campaignId}`} className="text-white">
-              Import CSV to this campaign
+          <div className="phishing-segment-group mb-3">
+            <button
+              type="button"
+              className={`btn btn-sm phishing-segment-btn ${addMode === "manual" ? "active" : ""}`}
+              onClick={() => setAddMode("manual")}
+            >
+              Add manually
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm phishing-segment-btn ${addMode === "pool" ? "active" : ""}`}
+              onClick={() => setAddMode("pool")}
+            >
+              From existing list
+            </button>
+            <Link
+              to={`/Phishing/Recipients/import?campaignId=${campaignId}`}
+              className="btn btn-sm phishing-outline-btn"
+            >
+              Import CSV
             </Link>
-          </p>
-          {availableToAdd.length === 0 ? (
-            <p className="text-secondary mb-0">
-              No available recipients.{" "}
-              <Link to="/Phishing/Recipients/import" className="text-white">Import more</Link> first.
-            </p>
+          </div>
+
+          {addMode === "manual" ? (
+            <>
+              <p className="text-secondary small mb-3">
+                Enter recipient details below. You can add one at a time before launch.
+              </p>
+              <ManualRecipientForm
+                onSubmit={handleAddManualRecipient}
+                loading={adding}
+                submitLabel="Add to campaign"
+              />
+            </>
           ) : (
             <>
-              <p className="text-secondary small mb-2">{selectedToAdd.length} selected</p>
-              <div style={{ maxHeight: 220, overflowY: "auto" }} className="mb-3">
-                {availableToAdd.map((r) => (
-                  <label key={r.id} className="d-flex align-items-center gap-2 mb-2 text-white">
-                    <input
-                      type="checkbox"
-                      checked={selectedToAdd.includes(r.id)}
-                      onChange={() => toggleAdd(r.id)}
-                    />
-                    {r.name ? `${r.name} — ${r.email}` : r.email} ({r.department})
-                  </label>
-                ))}
-              </div>
-              <button
-                type="button"
-                className="btn add-btn text-white border-0"
-                disabled={adding || !selectedToAdd.length}
-                onClick={handleAddRecipients}
-              >
-                {adding ? "Adding..." : `Add ${selectedToAdd.length || ""} recipient${selectedToAdd.length === 1 ? "" : "s"}`}
-              </button>
+              <p className="text-secondary small mb-2">
+                Select recipients from the global pool to attach to this campaign.
+              </p>
+              {availableToAdd.length === 0 ? (
+                <p className="text-secondary mb-0">
+                  No available recipients in the global list.{" "}
+                  <button type="button" className="btn btn-link text-white p-0 align-baseline" onClick={() => setAddMode("manual")}>
+                    Add manually
+                  </button>{" "}
+                  or{" "}
+                  <Link to={`/Phishing/Recipients/import?campaignId=${campaignId}`} className="text-white">
+                    import CSV
+                  </Link>.
+                </p>
+              ) : (
+                <>
+                  <p className="text-secondary small mb-2">{selectedToAdd.length} selected</p>
+                  <div style={{ maxHeight: 220, overflowY: "auto" }} className="mb-3">
+                    {availableToAdd.map((r) => (
+                      <label key={r.id} className="d-flex align-items-center gap-2 mb-2 text-white">
+                        <input
+                          type="checkbox"
+                          checked={selectedToAdd.includes(r.id)}
+                          onChange={() => toggleAdd(r.id)}
+                        />
+                        {r.name ? `${r.name} — ${r.email}` : r.email} ({r.department})
+                      </label>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn add-btn text-white border-0"
+                    disabled={adding || !selectedToAdd.length}
+                    onClick={handleAddRecipients}
+                  >
+                    {adding ? "Adding..." : `Add ${selectedToAdd.length || ""} recipient${selectedToAdd.length === 1 ? "" : "s"}`}
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>
       )}
 
       <div className="border-top border-secondary pt-3">
-        <h6 className="text-white mb-2">
-          Campaign recipients ({recipientTotal || campaignRecipients.length})
-        </h6>
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+          <h6 className="text-white mb-0">
+            Campaign recipients ({recipientTotal || campaignRecipients.length})
+          </h6>
+          <RoleGate allow={canDeleteRecipients}>
+            {removableRecipients.length > 0 && (
+              <button
+                type="button"
+                className="btn btn-sm phishing-delete-btn"
+                disabled={!selectedToRemove.length || removing}
+                onClick={startBulkRemove}
+              >
+                Remove selected ({selectedToRemove.length})
+              </button>
+            )}
+          </RoleGate>
+        </div>
+        {removableRecipients.length === 0 && campaignRecipients.length > 0 && (
+          <p className="text-secondary small mb-2">
+            Recipients who already received an email cannot be removed from this campaign.
+          </p>
+        )}
         {recipientsLoading ? (
           <PhishingLoading message="Loading recipients..." skeleton rows={3} />
         ) : campaignRecipients.length === 0 ? (
@@ -305,6 +428,21 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
               <table className="w-100 discover-tabel">
                 <thead>
                   <tr>
+                    {removableRecipients.length > 0 && (
+                      <th style={{ width: 36 }}>
+                        <RoleGate allow={canDeleteRecipients}>
+                          <input
+                            type="checkbox"
+                            aria-label="Select all removable recipients"
+                            checked={
+                              removableRecipients.length > 0
+                              && selectedToRemove.length === removableRecipients.length
+                            }
+                            onChange={toggleRemoveAll}
+                          />
+                        </RoleGate>
+                      </th>
+                    )}
                     <th>Name</th>
                     <th>Email</th>
                     <th>Department</th>
@@ -313,15 +451,31 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {campaignRecipients.map((r) => (
+                  {campaignRecipients.map((r) => {
+                    const removable = canRemoveRecipient(r, status);
+                    return (
                     <tr key={r.id}>
+                      {removableRecipients.length > 0 && (
+                        <td>
+                          {removable ? (
+                            <RoleGate allow={canDeleteRecipients}>
+                              <input
+                                type="checkbox"
+                                aria-label={`Select ${r.email}`}
+                                checked={selectedToRemove.includes(r.id)}
+                                onChange={() => toggleRemoveSelection(r.id)}
+                              />
+                            </RoleGate>
+                          ) : null}
+                        </td>
+                      )}
                       <td className="text-white">{r.name || "—"}</td>
                       <td>{r.email}</td>
                       <td>{r.department}</td>
                       <td><span className="text-capitalize">{r.status ?? "pending"}</span></td>
                       <td>
                         <RoleGate allow={canDeleteRecipients}>
-                          {canRemoveRecipient(r, status) && (
+                          {removable ? (
                             <button
                               type="button"
                               className="btn btn-sm phishing-delete-btn"
@@ -329,11 +483,19 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
                             >
                               Remove
                             </button>
+                          ) : (
+                            <span
+                              className="text-secondary small"
+                              title="Email already sent — cannot remove"
+                            >
+                              —
+                            </span>
                           )}
                         </RoleGate>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -366,10 +528,16 @@ export default function CampaignManagePanel({ campaign, onUpdated }) {
 
       <PhishingConfirmModal
         show={Boolean(pendingRemove)}
-        title="Remove recipient?"
+        title={
+          Array.isArray(pendingRemove) && pendingRemove.length > 1
+            ? `Remove ${pendingRemove.length} recipients?`
+            : "Remove recipient?"
+        }
         message={
           pendingRemove
-            ? `Remove ${pendingRemove.email} from this campaign? They will not receive emails from this campaign.`
+            ? Array.isArray(pendingRemove)
+              ? `Remove ${pendingRemove.length} recipients from this campaign? They will not receive emails from this campaign.`
+              : `Remove ${pendingRemove.email} from this campaign? They will not receive emails from this campaign.`
             : ""
         }
         confirmLabel="Remove"
